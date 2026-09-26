@@ -173,6 +173,9 @@ function renderCropsTable(crops) {
     `;
     tbody.appendChild(tr);
   });
+
+  // Refresh crop recommendation pills & autocomplete catalog
+  loadCropRecommendations("");
 }
 
 // Mandis
@@ -193,6 +196,9 @@ function renderMandisTable(mandis) {
     `;
     tbody.appendChild(tr);
   });
+
+  // Refresh location recommendation pills & autocomplete catalog
+  loadMandiRecommendations("");
 }
 
 // Distances
@@ -325,26 +331,40 @@ async function deleteCrop(id) {
 
 async function handleAddMandi(e) {
   e.preventDefault();
-  const name = document.getElementById("newMandiName").value.trim();
-  const lat = parseFloat(document.getElementById("newMandiLat").value) || null;
-  const lng = parseFloat(document.getElementById("newMandiLng").value) || null;
+  const nameInput = document.getElementById("newMandiName");
+  const addBtn = document.getElementById("addMandiBtn");
+  const name = nameInput.value.trim();
   if (!name) return;
 
-  const res = await fetch("/api/admin/mandis", {
-    method: "POST",
-    headers: getAuthHeaders(),
-    body: JSON.stringify({ name, latitude: lat, longitude: lng })
-  });
-  if (res.status === 401) { showLoginView(); return; }
-  const data = await res.json();
-  if (data.status === "success") {
-    showToast("✅ Mandi added successfully");
-    document.getElementById("newMandiName").value = "";
-    document.getElementById("newMandiLat").value = "";
-    document.getElementById("newMandiLng").value = "";
-    loadAdminData();
-  } else {
-    showToast("⚠️ " + (data.message || "Failed to add mandi"));
+  if (addBtn) {
+    addBtn.disabled = true;
+    addBtn.textContent = "📍 Geocoding...";
+  }
+  showToast(`🗺️ Resolving coordinates & calculating distances for ${name}...`);
+
+  try {
+    const res = await fetch("/api/admin/mandis", {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ name })
+    });
+    if (res.status === 401) { showLoginView(); return; }
+    const data = await res.json();
+    if (data.status === "success") {
+      showToast(`✅ Added ${name} (${data.latitude}, ${data.longitude}) & linked ${data.distances_linked || 'all'} distances!`);
+      nameInput.value = "";
+      loadAdminData();
+    } else {
+      showToast("⚠️ " + (data.message || "Failed to add mandi"));
+    }
+  } catch (err) {
+    console.error("Add mandi error:", err);
+    showToast("⚠️ Network error while adding mandi.");
+  } finally {
+    if (addBtn) {
+      addBtn.disabled = false;
+      addBtn.textContent = "+ Add Mandi";
+    }
   }
 }
 
@@ -490,9 +510,264 @@ function setupTabs() {
   });
 }
 
+// ==========================================
+// 5. Mandi Location Recommendations & Autocomplete
+// ==========================================
+let mandiRecDebounceTimer = null;
+
+async function loadMandiRecommendations(query = "") {
+  try {
+    const res = await fetch(`/api/places/recommendations?q=${encodeURIComponent(query)}`);
+    const data = await res.json();
+    if (data.status === "success") {
+      renderMandiRecommendations(data.recommendations || [], query);
+    }
+  } catch (err) {
+    console.error("Failed to load recommendations:", err);
+  }
+}
+
+function renderMandiRecommendations(recs, query) {
+  const datalist = document.getElementById("mandiDatalist");
+  const pillsContainer = document.getElementById("mandiQuickPills");
+  const dropdown = document.getElementById("mandiSuggestionsDropdown");
+
+  // 1. Update Datalist
+  if (datalist) {
+    datalist.innerHTML = "";
+    recs.forEach(r => {
+      const opt = document.createElement("option");
+      opt.value = r.name;
+      opt.label = `${r.district || 'Maharashtra'} (${r.lat}, ${r.lng})`;
+      datalist.appendChild(opt);
+    });
+  }
+
+  // 2. Update Quick Recommendation Pills (Top un-added suggestions)
+  if (pillsContainer && !query) {
+    pillsContainer.innerHTML = "";
+    if (recs.length === 0) {
+      pillsContainer.innerHTML = `<span style="font-size:0.75rem; color:var(--text-muted)">All standard mandis added</span>`;
+    } else {
+      recs.slice(0, 8).forEach(r => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "btn btn-outline";
+        btn.style.cssText = "min-height:26px; padding:2px 10px; font-size:0.78rem; border-radius:999px; background:#f0fdf4; border-color:#86efac; color:#166534; cursor:pointer; width:auto;";
+        btn.innerHTML = `+ <strong>${r.name.split('(')[0].trim()}</strong>`;
+        btn.title = `Add ${r.name} (${r.district || 'Maharashtra'})`;
+        btn.onclick = () => selectRecommendedMandi(r.name);
+        pillsContainer.appendChild(btn);
+      });
+    }
+  }
+
+  // 3. Update Dropdown Box when searching
+  if (dropdown) {
+    if (!query || recs.length === 0) {
+      dropdown.style.display = "none";
+      dropdown.innerHTML = "";
+      return;
+    }
+
+    dropdown.innerHTML = "";
+    recs.forEach(r => {
+      const item = document.createElement("div");
+      item.style.cssText = "padding:9px 14px; cursor:pointer; border-bottom:1px solid #f1f5f9; display:flex; justify-content:space-between; align-items:center; transition:background 0.15s ease;";
+      item.innerHTML = `
+        <div>
+          <div style="font-weight:700; font-size:0.88rem; color:#0f172a;">📍 ${r.name}</div>
+          <div style="font-size:0.75rem; color:#64748b;">${r.district ? r.district + ' District, Maharashtra' : 'Maharashtra'}</div>
+        </div>
+        <span style="font-size:0.75rem; background:#ecfdf5; color:#047857; font-weight:600; padding:2px 8px; border-radius:4px; border:1px solid #a7f3d0;">
+          GPS ${r.lat}, ${r.lng}
+        </span>
+      `;
+      item.onmouseover = () => item.style.background = "#f8fafc";
+      item.onmouseout = () => item.style.background = "#ffffff";
+      item.onmousedown = (e) => {
+        e.preventDefault();
+        selectRecommendedMandi(r.name);
+      };
+      dropdown.appendChild(item);
+    });
+    dropdown.style.display = "block";
+  }
+}
+
+window.selectRecommendedMandi = function(name) {
+  const input = document.getElementById("newMandiName");
+  const dropdown = document.getElementById("mandiSuggestionsDropdown");
+  if (input) {
+    input.value = name;
+  }
+  if (dropdown) {
+    dropdown.style.display = "none";
+  }
+  // Trigger form submit directly
+  const form = document.getElementById("addMandiForm");
+  if (form) {
+    form.dispatchEvent(new Event("submit", { cancelable: true }));
+  }
+};
+
+function setupMandiAutocomplete() {
+  const input = document.getElementById("newMandiName");
+  const dropdown = document.getElementById("mandiSuggestionsDropdown");
+
+  if (!input) return;
+
+  input.addEventListener("input", (e) => {
+    const val = e.target.value.trim();
+    clearTimeout(mandiRecDebounceTimer);
+    mandiRecDebounceTimer = setTimeout(() => {
+      loadMandiRecommendations(val);
+    }, 120);
+  });
+
+  input.addEventListener("focus", () => {
+    const val = input.value.trim();
+    loadMandiRecommendations(val);
+  });
+
+  input.addEventListener("blur", () => {
+    setTimeout(() => {
+      if (dropdown) dropdown.style.display = "none";
+    }, 200);
+  });
+}
+
+// ==========================================
+// 6. Crop Recommendations & Autocomplete
+// ==========================================
+let cropRecDebounceTimer = null;
+
+async function loadCropRecommendations(query = "") {
+  try {
+    const res = await fetch(`/api/crops/recommendations?q=${encodeURIComponent(query)}`);
+    const data = await res.json();
+    if (data.status === "success") {
+      renderCropRecommendations(data.recommendations || [], query);
+    }
+  } catch (err) {
+    console.error("Failed to load crop recommendations:", err);
+  }
+}
+
+function renderCropRecommendations(recs, query) {
+  const datalist = document.getElementById("cropDatalist");
+  const pillsContainer = document.getElementById("cropQuickPills");
+  const dropdown = document.getElementById("cropSuggestionsDropdown");
+
+  // 1. Update Datalist
+  if (datalist) {
+    datalist.innerHTML = "";
+    recs.forEach(r => {
+      const opt = document.createElement("option");
+      opt.value = r.name;
+      opt.label = `${r.category || 'Crop'} (~₹${r.default_price || 5000}/qtl)`;
+      datalist.appendChild(opt);
+    });
+  }
+
+  // 2. Update Quick Recommendation Pills
+  if (pillsContainer && !query) {
+    pillsContainer.innerHTML = "";
+    if (recs.length === 0) {
+      pillsContainer.innerHTML = `<span style="font-size:0.75rem; color:var(--text-muted)">All standard crops added</span>`;
+    } else {
+      recs.slice(0, 8).forEach(r => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "btn btn-outline";
+        btn.style.cssText = "min-height:26px; padding:2px 10px; font-size:0.78rem; border-radius:999px; background:#eff6ff; border-color:#93c5fd; color:#1e40af; cursor:pointer; width:auto;";
+        btn.innerHTML = `+ <strong>${r.name.split('/')[0].split('(')[0].trim()}</strong>`;
+        btn.title = `Add ${r.name} (${r.category})`;
+        btn.onclick = () => selectRecommendedCrop(r.name);
+        pillsContainer.appendChild(btn);
+      });
+    }
+  }
+
+  // 3. Update Dropdown Box when searching
+  if (dropdown) {
+    if (!query || recs.length === 0) {
+      dropdown.style.display = "none";
+      dropdown.innerHTML = "";
+      return;
+    }
+
+    dropdown.innerHTML = "";
+    recs.forEach(r => {
+      const item = document.createElement("div");
+      item.style.cssText = "padding:9px 14px; cursor:pointer; border-bottom:1px solid #f1f5f9; display:flex; justify-content:space-between; align-items:center; transition:background 0.15s ease;";
+      item.innerHTML = `
+        <div>
+          <div style="font-weight:700; font-size:0.88rem; color:#0f172a;">🌱 ${r.name}</div>
+          <div style="font-size:0.75rem; color:#64748b;">${r.category || 'Agricultural Crop'}</div>
+        </div>
+        <span style="font-size:0.75rem; background:#eff6ff; color:#1d4ed8; font-weight:600; padding:2px 8px; border-radius:4px; border:1px solid #bfdbfe;">
+          Base ~₹${r.default_price || 5000}/qtl
+        </span>
+      `;
+      item.onmouseover = () => item.style.background = "#f8fafc";
+      item.onmouseout = () => item.style.background = "#ffffff";
+      item.onmousedown = (e) => {
+        e.preventDefault();
+        selectRecommendedCrop(r.name);
+      };
+      dropdown.appendChild(item);
+    });
+    dropdown.style.display = "block";
+  }
+}
+
+window.selectRecommendedCrop = function(name) {
+  const input = document.getElementById("newCropName");
+  const dropdown = document.getElementById("cropSuggestionsDropdown");
+  if (input) {
+    input.value = name;
+  }
+  if (dropdown) {
+    dropdown.style.display = "none";
+  }
+  const form = document.getElementById("addCropForm");
+  if (form) {
+    form.dispatchEvent(new Event("submit", { cancelable: true }));
+  }
+};
+
+function setupCropAutocomplete() {
+  const input = document.getElementById("newCropName");
+  const dropdown = document.getElementById("cropSuggestionsDropdown");
+
+  if (!input) return;
+
+  input.addEventListener("input", (e) => {
+    const val = e.target.value.trim();
+    clearTimeout(cropRecDebounceTimer);
+    cropRecDebounceTimer = setTimeout(() => {
+      loadCropRecommendations(val);
+    }, 120);
+  });
+
+  input.addEventListener("focus", () => {
+    const val = input.value.trim();
+    loadCropRecommendations(val);
+  });
+
+  input.addEventListener("blur", () => {
+    setTimeout(() => {
+      if (dropdown) dropdown.style.display = "none";
+    }, 200);
+  });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   setupTabs();
   checkAdminAuth();
+  setupMandiAutocomplete();
+  setupCropAutocomplete();
 
   // Login & Logout Listeners
   const loginForm = document.getElementById("adminLoginForm");

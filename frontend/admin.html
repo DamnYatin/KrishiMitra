@@ -102,11 +102,28 @@
     <section class="card admin-tab-content" id="tabCrops" style="display: none;">
       <h2 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 1rem;">🌱 Manage Crops</h2>
       
-      <!-- Add Crop Form -->
-      <form id="addCropForm" style="display: flex; gap: 0.75rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
-        <input type="text" id="newCropName" class="form-input" placeholder="Crop Name (e.g. Maize / मक्का)" required style="flex: 1; min-width: 220px;">
-        <button type="submit" class="btn btn-primary" style="width: auto; min-width: 130px;">+ Add Crop</button>
-      </form>
+      <!-- Add Crop Form with Recommendations -->
+      <div style="position: relative; margin-bottom: 1.25rem;">
+        <form id="addCropForm" style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;" autocomplete="off">
+          <div style="position: relative; flex: 1; min-width: 240px;">
+            <input type="text" id="newCropName" class="form-input" placeholder="Search / enter Crop (e.g. Maize / मक्का)" required autocomplete="off" list="cropDatalist" style="width: 100%;">
+            <datalist id="cropDatalist"></datalist>
+            
+            <!-- Live interactive crop suggestions dropdown -->
+            <div id="cropSuggestionsDropdown" style="display: none; position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: #ffffff; border: 1.5px solid var(--border-color); border-radius: var(--radius-md); box-shadow: 0 10px 25px rgba(0,0,0,0.12); z-index: 100; max-height: 260px; overflow-y: auto;">
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary" id="addCropBtn" style="width: auto; min-width: 140px;">+ Add Crop</button>
+        </form>
+
+        <!-- Quick Recommended Crops Pills -->
+        <div style="margin-top: 0.75rem; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
+          <span style="font-size: 0.8rem; font-weight: 600; color: var(--text-light);">Recommended to Add:</span>
+          <div id="cropQuickPills" style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+            <!-- Populated dynamically by admin.js -->
+          </div>
+        </div>
+      </div>
 
       <div class="table-responsive">
         <table class="admin-table">
@@ -126,13 +143,31 @@
     <section class="card admin-tab-content" id="tabMandis" style="display: none;">
       <h2 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 1rem;">🏛️ Manage Mandis (APMCs)</h2>
       
-      <!-- Add Mandi Form -->
-      <form id="addMandiForm" class="admin-form-grid-4">
-        <input type="text" id="newMandiName" class="form-input" placeholder="Mandi Name (e.g. Wardha / वर्धा)" required>
-        <input type="number" id="newMandiLat" class="form-input" step="0.0001" placeholder="Latitude">
-        <input type="number" id="newMandiLng" class="form-input" step="0.0001" placeholder="Longitude">
-        <button type="submit" class="btn btn-primary">+ Add Mandi</button>
-      </form>
+      <!-- Add Mandi Form with Autocomplete Recommendations -->
+      <div style="position: relative; margin-bottom: 1.25rem;">
+        <form id="addMandiForm" style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;" autocomplete="off">
+          <div style="position: relative; flex: 1; min-width: 240px;">
+            <input type="text" id="newMandiName" class="form-input" placeholder="Search / enter Mandi (e.g. Yavatmal / यवतमाळ)" required autocomplete="off" list="mandiDatalist" style="width: 100%;">
+            <datalist id="mandiDatalist"></datalist>
+            
+            <!-- Live interactive suggestions dropdown -->
+            <div id="mandiSuggestionsDropdown" style="display: none; position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: #ffffff; border: 1.5px solid var(--border-color); border-radius: var(--radius-md); box-shadow: 0 10px 25px rgba(0,0,0,0.12); z-index: 100; max-height: 260px; overflow-y: auto;">
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary" id="addMandiBtn" style="width: auto; min-width: 150px;">+ Add Mandi</button>
+        </form>
+
+        <!-- Quick Recommended Mandis Pills -->
+        <div style="margin-top: 0.75rem; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
+          <span style="font-size: 0.8rem; font-weight: 600; color: var(--text-light);">Recommended to Add:</span>
+          <div id="mandiQuickPills" style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+            <!-- Populated dynamically by admin.js -->
+          </div>
+        </div>
+      </div>
+      <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: -0.5rem; margin-bottom: 1.25rem;">
+        💡 <em>Coordinates (Lat, Lng) and distances to Nagpur & other markets are automatically resolved via Google Maps Geocoding & Distance Matrix API.</em>
+      </p>
 
       <div class="table-responsive">
         <table class="admin-table">

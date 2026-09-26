@@ -208,14 +208,7 @@ def compare_mandis():
     except ValueError:
         return jsonify({"status": "error", "message": "Invalid numeric parameter format."}), 400
 
-    # Automatically refresh live rates from Agmarknet / live feed on start
-    auto_refresh = data.get("refresh", True)
-    if auto_refresh:
-        try:
-            DataFetcherService.fetch_and_update_prices(crop_id=crop_id)
-        except Exception as err:
-            pass
-
+    # Evaluates immediately from database for ultra-fast response
     result = rank_and_recommend_mandis(
         crop_id=crop_id,
         home_mandi_id=home_mandi_id,
@@ -264,6 +257,21 @@ def refresh_prices():
     crop_id = request.args.get("crop_id", type=int)
     result = DataFetcherService.fetch_and_update_prices(crop_id=crop_id)
     return jsonify(result)
+
+@app.route("/api/places/recommendations", methods=["GET"])
+def place_recommendations():
+    """Returns recommended mandi locations for autocomplete and quick adding."""
+    query = request.args.get("q", "")
+    from services.maps_distance_service import get_location_recommendations
+    recs = get_location_recommendations(query)
+    return jsonify({"status": "success", "recommendations": recs})
+
+@app.route("/api/crops/recommendations", methods=["GET"])
+def crop_recommendations():
+    """Returns recommended crops for autocomplete and quick adding."""
+    query = request.args.get("q", "")
+    recs = CropModel.get_recommendations(query)
+    return jsonify({"status": "success", "recommendations": recs})
 
 # ==========================================
 # Admin Panel Authentication & CRUD Endpoints

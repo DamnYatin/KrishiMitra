@@ -62,7 +62,15 @@ class AdminController:
     @staticmethod
     def add_crop(name):
         crop_id = CropModel.create(name)
-        return {"status": "success", "id": crop_id, "message": "Crop created successfully"}
+        # Automatically fetch and store live/market prices across all mandis in database
+        from services.data_fetcher_service import DataFetcherService
+        fetch_res = DataFetcherService.fetch_and_update_prices(crop_id=crop_id)
+        updated_count = fetch_res.get("updated_count", 0)
+        return {
+            "status": "success",
+            "id": crop_id,
+            "message": f"Crop '{name}' created successfully with live market prices fetched and stored for {updated_count} mandis."
+        }
 
     @staticmethod
     def update_crop(crop_id, name):
@@ -76,9 +84,37 @@ class AdminController:
 
     # --- Mandis CRUD ---
     @staticmethod
-    def add_mandi(name, latitude, longitude):
+    def add_mandi(name, latitude=None, longitude=None):
+        from services.maps_distance_service import geocode_place_name, auto_link_mandi_distances
+        # Auto-fetch coordinates via Maps API if not provided
+        if latitude is None or longitude is None or str(latitude).strip() == "" or str(longitude).strip() == "":
+            latitude, longitude, geo_source = geocode_place_name(name)
+        else:
+            try:
+                latitude = float(latitude)
+                longitude = float(longitude)
+                geo_source = "manual"
+            except (ValueError, TypeError):
+                latitude, longitude, geo_source = geocode_place_name(name)
+
         mandi_id = MandiModel.create(name, latitude, longitude)
-        return {"status": "success", "id": mandi_id, "message": "Mandi created successfully"}
+
+        # Auto-compute and record distances to all mandis (including Nagpur)
+        distances_created = auto_link_mandi_distances(mandi_id)
+
+        # Populate prices for all crops at this new mandi
+        from services.data_fetcher_service import DataFetcherService
+        DataFetcherService.fetch_and_update_prices()
+
+        return {
+            "status": "success",
+            "id": mandi_id,
+            "latitude": latitude,
+            "longitude": longitude,
+            "geo_source": geo_source,
+            "distances_linked": len(distances_created),
+            "message": f"Mandi '{name}' created with coordinates ({latitude}, {longitude}) and distances automatically linked."
+        }
 
     @staticmethod
     def update_mandi(mandi_id, name, latitude, longitude):
