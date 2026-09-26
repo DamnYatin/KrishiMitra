@@ -37,7 +37,7 @@ def test_all():
 
     # 1. DB Init & Seed
     init_db()
-    seed_db()
+    seed_db(force_reseed=True)
     print("[PASS] DB initialization & seeding passed.")
 
     # 2. Crops & Mandis
@@ -61,7 +61,7 @@ def test_all():
     assert net_res["total_net_return"] == 71340.0, f"Expected 71340.0, got {net_res['total_net_return']}"
     print("[PASS] Net Price Calculator verified (Rs 7,250 - Rs 116 = Rs 7,134/qtl).")
 
-    # 5. Full Ranking Engine on Pitch Deck scenario (Cotton + Nagpur)
+    # 5. Full Ranking Engine on benchmark scenario (Cotton + Nagpur)
     cotton = next((c for c in crops if "cotton" in c["name"].lower()), crops[0])
     nagpur = next((m for m in mandis if "nagpur" in m["name"].lower()), mandis[0])
 
@@ -69,7 +69,7 @@ def test_all():
     winner = ranking_res["recommended_mandi"]
     summary = ranking_res["effective_price_summary"]
 
-    print("\n--- Pitch Deck Ranking Output ---")
+    print("\n--- Benchmark Scenario Ranking Output ---")
     for m in ranking_res["ranked_mandis"]:
         print(f"Rank {m['rank']}: {m['mandi_name']} | Distance: {m['distance_km']}km | Listing: Rs {m['mandi_price_per_qtl']} | Trans: Rs {m['transport_cost_per_qtl']} | Other: Rs {m['other_costs_per_qtl']} | NET: Rs {m['net_price_per_qtl']}/qtl")
 

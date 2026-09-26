@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>KrishiMitra - Mandi Compare Dashboard (SIH26132)</title>
-  <meta name="description" content="Ranked mandi price comparison factoring transport and handling fees. Smart India Hackathon 2026.">
+  <title>KrishiMitra - Mandi Compare Dashboard</title>
+  <meta name="description" content="Ranked mandi price comparison factoring transport and handling fees.">
 
   <!-- Google Fonts: Poppins -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -81,7 +81,7 @@
 
         <div id="winnerProfitCallout" class="winner-benefit-callout" style="display:none;"></div>
 
-        <!-- Effective Price Summary Card (Pitch Deck Breakdown Box) -->
+        <!-- Effective Price Summary Card (Cost Breakdown Box) -->
         <div class="summary-table-box">
           <div class="summary-row">
             <span data-i18n="mandiPriceLabel">Mandi Listing Price</span>
@@ -133,6 +133,11 @@
           <button id="refreshPricesBtn" class="btn btn-outline" style="min-height:34px; padding:2px 8px; font-size:0.8rem; width:auto;" data-i18n="refreshPricesBtn">
             ⚡ Refresh Live Rates
           </button>
+        </div>
+
+        <div id="refreshStatusMessage" style="display:none; margin-bottom: 0.75rem; padding: 6px 12px; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: var(--radius-sm); font-size: 0.82rem; font-weight: 600; color: #065f46; align-items: center; gap: 6px;">
+          <span class="status-icon">✅</span>
+          <span id="refreshStatusText">Live rates refreshed successfully</span>
         </div>
 
         <div id="rankedMandisContainer">

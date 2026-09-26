@@ -30,7 +30,7 @@ def get_active_notifications(crop_id=None, mandi_id=None):
     crops = [CropModel.get_by_id(crop_id)] if crop_id else CropModel.get_all()
     mandis = MandiModel.get_all()
 
-    # Base alerts matching realistic SIH scenario
+    # Base alerts matching realistic agricultural scenario
     notifications.append({
         "id": 1,
         "type": "opportunity",

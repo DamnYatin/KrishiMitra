@@ -5,7 +5,7 @@
  *   - Reads selected Crop, Home Mandi, and Quantity from URL or localStorage
  *   - Calls POST /api/compare to get ranked mandis, winner recommendation & cost breakdown
  *   - Renders 🏆 Champion Winner Recommendation Card
- *   - Renders Effective Price Summary Breakdown Card matching pitch deck specs
+ *   - Renders Effective Price Summary Breakdown Card with transparent cost components
  *   - Renders ranked list of alternative mandis
  *   - "🔊 Speak Result" Multilingual TTS with gTTS audio buffer & browser SpeechSynthesis
  *   - "🗺️ Navigate to Mandi" Google Maps directions launcher
@@ -40,7 +40,10 @@ const dashboardTranslations = {
     marketSpread: "Regional Price Spread",
     avgPrice: "7-Day Regional Avg",
     extraEarningNotice: "💡 Selling at {mandi} earns ₹{extra} more per quintal than your home market!",
-    refreshPricesBtn: "⚡ Refresh Live Rates"
+    refreshPricesBtn: "⚡ Refresh Live Rates",
+    refreshingRates: "⚡ Fetching latest live rates...",
+    ratesRefreshed: "✅ Live rates refreshed successfully",
+    ratesRefreshError: "⚠️ Could not refresh live rates"
   },
   hi: {
     appTitle: "कृषिमित्र",
@@ -66,7 +69,10 @@ const dashboardTranslations = {
     marketSpread: "क्षेत्रीय भाव अंतर",
     avgPrice: "7 दिवसीय औसत भाव",
     extraEarningNotice: "💡 {mandi} में बेचने पर अपनी गृह मंडी से ₹{extra} प्रति क्विंटल अधिक मुनाफा मिलेगा!",
-    refreshPricesBtn: "⚡ लाइव भाव रीफ्रेश करें"
+    refreshPricesBtn: "⚡ लाइव भाव रीफ्रेश करें",
+    refreshingRates: "⚡ नवीनतम लाइव भाव प्राप्त किए जा रहे हैं...",
+    ratesRefreshed: "✅ लाइव भाव सफलतापूर्वक रीफ्रेश हो गए",
+    ratesRefreshError: "⚠️ लाइव भाव रीफ्रेश नहीं हो सके"
   },
   mr: {
     appTitle: "कृषि मित्र",
@@ -92,7 +98,10 @@ const dashboardTranslations = {
     marketSpread: "बाजारभाव फरक",
     avgPrice: "७ दिवसांची सरासरी",
     extraEarningNotice: "💡 {mandi} येथे माल विकल्यास गृह मंडीपेक्षा क्विंटलमागे ₹{extra} जास्त मिळतील!",
-    refreshPricesBtn: "⚡ ताजे दर अपडेट करा"
+    refreshPricesBtn: "⚡ ताजे दर अपडेट करा",
+    refreshingRates: "⚡ ताजे बाजारभाव आणत आहे...",
+    ratesRefreshed: "✅ ताजे दर यशस्वीरित्या अपडेट झाले",
+    ratesRefreshError: "⚠️ ताजे दर अपडेट होऊ शकले नाहीत"
   }
 };
 
@@ -153,12 +162,14 @@ function formatName(rawName, lang) {
 // ==========================================
 // 3. Fetch Comparison Data from POST /api/compare
 // ==========================================
-async function fetchComparisonData() {
+async function fetchComparisonData(isSilent = false) {
   const loadingElem = document.getElementById("loadingIndicator");
   const contentElem = document.getElementById("dashboardContent");
 
-  if (loadingElem) loadingElem.style.display = "block";
-  if (contentElem) contentElem.style.display = "none";
+  if (!isSilent) {
+    if (loadingElem) loadingElem.style.display = "block";
+    if (contentElem) contentElem.style.display = "none";
+  }
 
   try {
     const response = await fetch("/api/compare", {
@@ -184,8 +195,10 @@ async function fetchComparisonData() {
     console.error("Comparison fetch failed:", error);
     showToast("⚠️ Network error while fetching mandi comparisons.");
   } finally {
-    if (loadingElem) loadingElem.style.display = "none";
-    if (contentElem) contentElem.style.display = "block";
+    if (!isSilent) {
+      if (loadingElem) loadingElem.style.display = "none";
+      if (contentElem) contentElem.style.display = "block";
+    }
   }
 }
 
@@ -237,7 +250,7 @@ function renderDashboardUI(data) {
     }
   }
 
-  // 3. Effective Price Summary Card (Matching Pitch Deck specs)
+  // 3. Effective Price Summary Card (Transparent Cost Breakdown)
   if (summary) {
     document.getElementById("summaryListingPrice").textContent = `₹${summary.mandi_price_per_qtl.toLocaleString()} / qtl`;
     document.getElementById("summaryTransportCost").textContent = `₹${summary.transport_cost_per_qtl.toLocaleString()} / qtl`;
@@ -394,17 +407,51 @@ function speakWithBrowserTTS(text, lang, onEndCallback) {
 // Refresh Live Rates Handler
 async function handleRefreshRates() {
   const btn = document.getElementById("refreshPricesBtn");
-  if (btn) btn.disabled = true;
-  showToast("⚡ Fetching latest Agmarknet live price updates...");
+  const statusContainer = document.getElementById("refreshStatusMessage");
+  const statusText = document.getElementById("refreshStatusText");
+  const dict = dashboardTranslations[currentLang] || dashboardTranslations.en;
+
+  if (btn) {
+    btn.disabled = true;
+    btn.style.opacity = "0.7";
+    btn.textContent = dict.refreshingRates;
+  }
+  showToast(dict.refreshingRates);
 
   try {
     await fetch(`/api/refresh-prices?crop_id=${cropId}`, { method: "POST" });
-    await fetchComparisonData();
-    showToast("✅ Prices updated successfully!");
+    await fetchComparisonData(true);
+
+    const timeStr = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    const successMsg = `${dict.ratesRefreshed} (${timeStr})`;
+
+    showToast(successMsg);
+
+    if (statusContainer && statusText) {
+      statusText.textContent = successMsg;
+      statusContainer.style.display = "flex";
+      statusContainer.style.opacity = "1";
+      setTimeout(() => {
+        statusContainer.style.transition = "opacity 0.8s ease";
+        statusContainer.style.opacity = "0";
+        setTimeout(() => {
+          statusContainer.style.display = "none";
+        }, 800);
+      }, 5000);
+    }
   } catch (e) {
-    showToast("⚠️ Could not refresh prices.");
+    console.error("Refresh error:", e);
+    showToast(dict.ratesRefreshError);
+    if (statusContainer && statusText) {
+      statusText.textContent = dict.ratesRefreshError;
+      statusContainer.style.display = "flex";
+    }
   } finally {
-    if (btn) btn.disabled = false;
+    if (btn) {
+      btn.disabled = false;
+      btn.style.opacity = "1";
+      btn.textContent = dict.refreshPricesBtn;
+    }
   }
 }
 

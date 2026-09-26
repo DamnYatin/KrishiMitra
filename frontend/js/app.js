@@ -17,7 +17,7 @@ const translations = {
   en: {
     appTitle: "KrishiMitra",
     appSubtitle: "Mandi Price & Transport Estimator",
-    bannerTitle: "SIH26132 Market Discovery Engine",
+    bannerTitle: "KrishiMitra Market Discovery Engine",
     selectCropLabel: "Select Your Crop",
     selectCropPlaceholder: "Choose crop...",
     selectMandiLabel: "Your Home Mandi / Village",
@@ -32,7 +32,7 @@ const translations = {
   hi: {
     appTitle: "कृषिमित्र",
     appSubtitle: "मंडी भाव एवं परिवहन खर्च कैलकुलेटर",
-    bannerTitle: "SIH26132 बाजार मूल्य खोज प्रणाली",
+    bannerTitle: "कृषिमित्र बाजार मूल्य खोज प्रणाली",
     selectCropLabel: "अपनी फसल चुनें",
     selectCropPlaceholder: "फसल का चयन करें...",
     selectMandiLabel: "आपकी नजदीकी / गृह मंडी",
@@ -47,7 +47,7 @@ const translations = {
   mr: {
     appTitle: "कृषि मित्र",
     appSubtitle: "बाजारभाव आणि वाहतूक खर्च गणक",
-    bannerTitle: "SIH26132 शेतकरी बाजार जोडणी",
+    bannerTitle: "कृषि मित्र शेतकरी बाजार जोडणी",
     selectCropLabel: "आपले पीक निवडा",
     selectCropPlaceholder: "पीक निवडा...",
     selectMandiLabel: "आपली जवळची / गृह बाजारपेठ (मंडी)",
@@ -130,7 +130,7 @@ function populateCropSelect(crops) {
     opt.value = crop.id;
     opt.textContent = formatNameForLanguage(crop.name, currentLang);
     opt.dataset.raw = crop.name;
-    // Default to Cotton matching the SIH pitch deck demo
+    // Default to Cotton for initial demo
     if (crop.name.toLowerCase().includes("cotton")) {
       opt.selected = true;
     }
@@ -147,7 +147,7 @@ function populateMandiSelect(mandis) {
     opt.value = mandi.id;
     opt.textContent = formatNameForLanguage(mandi.name, currentLang);
     opt.dataset.raw = mandi.name;
-    // Default to Nagpur matching the SIH pitch deck demo
+    // Default to Nagpur for initial demo
     if (mandi.name.toLowerCase().includes("nagpur")) {
       opt.selected = true;
     }

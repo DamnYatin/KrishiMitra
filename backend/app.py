@@ -208,6 +208,14 @@ def compare_mandis():
     except ValueError:
         return jsonify({"status": "error", "message": "Invalid numeric parameter format."}), 400
 
+    # Automatically refresh live rates from Agmarknet / live feed on start
+    auto_refresh = data.get("refresh", True)
+    if auto_refresh:
+        try:
+            DataFetcherService.fetch_and_update_prices(crop_id=crop_id)
+        except Exception as err:
+            pass
+
     result = rank_and_recommend_mandis(
         crop_id=crop_id,
         home_mandi_id=home_mandi_id,

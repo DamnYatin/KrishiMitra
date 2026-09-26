@@ -1,14 +1,12 @@
-# KrishiMitra Market Estimator ("Mandi Compare") — Comprehensive Technical Documentation
-### Smart India Hackathon 2026 — Problem Statement SIH26132
+# KrishiMitra Market Estimator & Direct Marketplace — Comprehensive Technical Documentation
 **Theme:** Agriculture, Foodtech & Rural Development  
-**Team:** InnoVate  
-**Product:** KrishiMitra Market Estimator  
+**Product:** KrishiMitra Market Estimator & Direct Procurement Platform  
 
 ---
 
-## 1. Executive Summary & SIH26132 Objective
+## 1. Executive Summary & Objective
 
-### Problem Statement SIH26132
+### Core Problem Statement
 > **"Strengthening market linkages and price discovery for farmers"**
 
 Smallholder and marginal farmers across India often sell agricultural produce at local village markets or the closest APMC Mandi, missing out on significantly higher prices offered in neighboring markets. However, traveling to a distant market incurs freight charges, loading/unloading labor costs, and statutory market cess. A higher nominal listing price does **not** guarantee higher take-home profit.
@@ -51,7 +49,7 @@ $$\text{Total Profit Gain (₹)} = \text{Profit Gain per quintal} \times \text{Q
 
 ---
 
-### Step-by-Step Worked Example (SIH Pitch Deck Benchmark)
+### Step-by-Step Worked Example (Benchmark Scenario)
 
 **Farmer Input:**
 - **Crop:** Cotton (कपास / कापूस)
@@ -121,7 +119,7 @@ krishimitra/
 │   ├── database/
 │   │   ├── db_connection.py            # SQLite context manager & connection pool
 │   │   ├── db_init.py                  # DDL table creation scripts (incl. deals, deal_inquiries)
-│   │   └── seed_data.py                # Realistic seed data matching pitch deck + demo deals
+│   │   └── seed_data.py                # Realistic seed data for Maharashtra mandis + demo deals
 │   ├── models/
 │   │   ├── crop_model.py               # Crop entity queries
 │   │   ├── mandi_model.py              # Mandi coordinates & entity queries
@@ -225,7 +223,7 @@ krishimitra/
   ```
 
 #### 4. `backend/database/seed_data.py`
-- **Purpose:** Populates the database with realistic sample data matching the SIH pitch deck (Cotton in Nagpur, Amravati, Pune, Akola, Nashik; realistic lat/lng; freight rates; 7-day historical prices), plus 5–6 realistic demo deals for the Buyer Marketplace (e.g. Wheat/Nashik/₹10,000, Cotton/Amravati/₹7,300, Soybean/Akola/₹4,800, Onion/Pune/₹1,900, Tur/Nagpur/₹8,200) with staggered `posted_at` timestamps.
+- **Purpose:** Populates the database with realistic sample data (Cotton in Nagpur, Amravati, Pune, Akola, Nashik; realistic lat/lng; freight rates; 7-day historical prices), plus 5–6 realistic demo deals for the Buyer Marketplace (e.g. Wheat/Nashik/₹10,000, Cotton/Amravati/₹7,300, Soybean/Akola/₹4,800, Onion/Pune/₹1,900, Tur/Nagpur/₹8,200) with staggered `posted_at` timestamps.
 - **Inputs:** None (or DB path).
 - **Outputs:** Seeded database records.
 - **Usage Example:**
@@ -488,7 +486,7 @@ krishimitra/
 #### 27. `frontend/dashboard.html` (Screen 2: Mandi Compare & Map)
 - **Purpose:** Visual comparison dashboard featuring:
   - 🏆 Champion recommended market card (Amravati ₹7,134/qtl)
-  - Effective Price Summary card matching SIH pitch deck breakdown
+  - Effective Price Summary card with transparent breakdown
   - Ranked list of nearby markets
   - "🔊 Speak Result" multilingual voice button
   - Interactive Google Maps route visualizer with fallback
@@ -527,14 +525,14 @@ krishimitra/
 ### Testing & Verification Files
 
 #### 35. `test_services.py`
-- **Purpose:** Standalone test suite that verifies all backend calculation services, mathematical formulas, the pitch deck Cotton/Nagpur benchmark, and the Direct Marketplace flow (deal creation → buyer feed exclusion of phone numbers → inquiry-gated contact reveal) without needing a browser.
+- **Purpose:** Standalone test suite that verifies all backend calculation services, mathematical formulas, the Cotton/Nagpur benchmark scenario, and the Direct Marketplace flow (deal creation → buyer feed exclusion of phone numbers → inquiry-gated contact reveal) without needing a browser.
 - **Usage Example:**
   ```bash
   python test_services.py
   ```
 
 #### 36. `README.md`
-- **Purpose:** High-level project summary, installation instructions, pitch deck benchmark table, and API integration guides.
+- **Purpose:** High-level project summary, installation instructions, benchmark scenario table, and API integration guides.
 
 ---
 
@@ -545,7 +543,7 @@ To protect master logistics data from unauthorized modification, the Admin Panel
 - **Default Username:** `admin`
 - **Default Password:** `admin`
 - **Auth Endpoint:** `POST /api/admin/login`
-- **Header Structure:** `Authorization: Bearer krishimitra-admin-auth-token-sih26132`
+- **Header Structure:** `Authorization: Bearer krishimitra-admin-auth-token-secure`
 - **Protected Endpoints:** All `/api/admin/*` CRUD endpoints return `401 Unauthorized` unless a valid token is provided.
 
 *Note: the Direct Marketplace endpoints (`/api/deals*`) are intentionally left open (no admin auth) since farmers and buyers are both public, unauthenticated users of the prototype — contact-detail protection instead comes from the inquiry-gating design described in Section 9.*

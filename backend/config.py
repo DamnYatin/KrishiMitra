@@ -25,7 +25,7 @@ DB_PATH = os.environ.get("KRISHIMITRA_DB_PATH", DEFAULT_DB)
 class Config:
     """Application Configuration Settings"""
     DEBUG = os.environ.get("FLASK_DEBUG", "True").lower() in ("true", "1")
-    SECRET_KEY = os.environ.get("SECRET_KEY", "krishimitra-secret-key-sih26132")
+    SECRET_KEY = os.environ.get("SECRET_KEY", "krishimitra-secret-key-prod")
     DB_PATH = DB_PATH
     
     # Mock Data Toggle (When False or when keys present, connects to live APIs)
@@ -41,7 +41,7 @@ class Config:
     # Admin Panel Credentials & Auth Token
     ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME", "admin")
     ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin")
-    ADMIN_AUTH_TOKEN = "krishimitra-admin-auth-token-sih26132"
+    ADMIN_AUTH_TOKEN = "krishimitra-admin-auth-token-secure"
     
     # Default transport rate per km per quintal (INR)
     DEFAULT_TRANSPORT_RATE = 0.80

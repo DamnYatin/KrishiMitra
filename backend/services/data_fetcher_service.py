@@ -51,7 +51,7 @@ class DataFetcherService:
             }
 
             try:
-                headers = {"User-Agent": "KrishiMitra-SIH26132/1.0"}
+                headers = {"User-Agent": "KrishiMitra/1.0"}
                 response = requests.get(api_url, params=params, headers=headers, timeout=6)
                 if response.status_code == 200 and response.content:
                     # Parse XML response

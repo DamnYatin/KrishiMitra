@@ -1,7 +1,7 @@
 """
 File: seed_data.py
 Purpose: Seeds initial realistic agricultural market data into SQLite database,
-         matching the SIH pitch deck specifications for Maharashtra Mandis (Nagpur, Amravati,
+         for Maharashtra Mandis (Nagpur, Amravati,
          Pune, Akola, Nashik) and crops (Cotton, Soybean, Wheat, Onion, Tur, Gram).
 Inputs:  db_path (optional str, defaults to Config.DB_PATH)
 Outputs: Populated SQLite tables with crops, mandis, rates, distances, costs, and historical prices
@@ -13,12 +13,23 @@ import datetime
 from database.db_connection import get_db_connection
 from database.db_init import init_db
 
-def seed_db(db_path=None):
+def seed_db(db_path=None, force_reseed=False):
     """Populates database with initial realistic sample data."""
     init_db(db_path)
 
     with get_db_connection(db_path) as conn:
         cursor = conn.cursor()
+
+        if force_reseed:
+            cursor.execute("DELETE FROM deal_inquiries")
+            cursor.execute("DELETE FROM deals")
+            cursor.execute("DELETE FROM price_history")
+            cursor.execute("DELETE FROM prices")
+            cursor.execute("DELETE FROM distances")
+            cursor.execute("DELETE FROM other_costs")
+            cursor.execute("DELETE FROM transport_rates")
+            cursor.execute("DELETE FROM mandis")
+            cursor.execute("DELETE FROM crops")
 
         # 1. Seed Core Market Data if not already present
         cursor.execute("SELECT COUNT(*) as cnt FROM crops")
@@ -234,5 +245,5 @@ def seed_db(db_path=None):
 
 if __name__ == "__main__":
     seed_db()
-    print("Database seeded with sample data matching pitch deck successfully.")
+    print("Database seeded with sample data successfully.")
 

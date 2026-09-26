@@ -1,8 +1,7 @@
-# KrishiMitra Market Estimator ("Mandi Compare")
-### Smart India Hackathon 2026 — Problem Statement SIH26132
-**Theme:** Agriculture, Foodtech & Rural Development  
-**Team:** InnoVate  
-**Product:** KrishiMitra Market Estimator  
+# KrishiMitra Market Estimator & Direct Marketplace
+
+**Domain:** Agriculture, Foodtech & Rural Logistics  
+**Product:** KrishiMitra Market Discovery & Direct Procurement Platform  
 
 ---
 
@@ -10,7 +9,7 @@
 
 Agricultural producers frequently sell their harvest at local village markets or the nearest APMC Mandi, unaware that a market 50–100 km away might offer significantly higher listing prices. However, higher listing prices do not automatically guarantee higher profits once logistics, loading/unloading, and market cess are deducted.
 
-**KrishiMitra** solves this by evaluating candidate markets, automatically calculating **Transport Costs** and **Mandi Handling Charges**, and recommending the market that delivers the **highest net profit return per quintal** to the farmer.
+**KrishiMitra** solves this by evaluating candidate markets, automatically calculating **Transport Costs** and **Mandi Handling Charges**, and recommending the market that delivers the **highest net profit return per quintal** to the farmer. It also features a **Direct Buyer Marketplace** enabling direct procurement between bulk buyers and farmers with zero intermediary commissions.
 
 ---
 
@@ -29,27 +28,63 @@ Every calculation is implemented in dedicated, unit-testable service modules:
 
 ---
 
-## 🚀 Quick Start & Installation
+## 🚀 How to Run
 
-### 1. Prerequisites
-- Python 3.8+
-- pip
+### ⚡ Option A: One-Click Launch (Windows)
+Simply double-click [`run.bat`](file:///c:/Users/HP-PC/Documents/KrishiMitra/KrishiMitra_Buyer/run.bat) in the project root. It will automatically check requirements, start the server, and open the app in your default browser.
 
-### 2. Install Dependencies
+---
+
+### 💻 Option B: Manual Terminal Execution
+
+#### 1. Prerequisites
+- **Python 3.8+** installed on your system
+- **pip** package installer
+
+#### 2. Setup & Installation
+
+Clone or extract the repository, open your terminal / command prompt in the root project directory:
+
 ```bash
-pip install -r backend/requirements.txt
+# Optional: Create and activate a virtual environment
+python -m venv venv
+
+# On Windows:
+venv\Scripts\activate
+
+# On macOS/Linux:
+source venv/bin/activate
+
+# Install required dependencies
+pip install -r requirements.txt
 ```
 
-### 3. Launch Application
+#### 3. Run the Application
+
 ```bash
 python backend/app.py
 ```
 
-On first launch, SQLite database `backend/database/krishimitra.db` will automatically initialize tables and seed realistic sample data matching the SIH pitch deck scenario.
+On first launch, the SQLite database at `backend/database/krishimitra.db` will automatically initialize tables and seed initial market data and demo buyer listings.
 
-Open your browser to:
-- **Farmer Interface (Screen 1 & 2):** [http://127.0.0.1:5000](http://127.0.0.1:5000)
-- **Admin Configuration Panel (Screen 3):** [http://127.0.0.1:5000/admin](http://127.0.0.1:5000/admin)
+### 4. Open in Browser
+
+Once the server is running on `http://127.0.0.1:5000`:
+
+| Interface | URL | Description |
+| :--- | :--- | :--- |
+| **🌾 Farmer Price Discovery (Screen 1)** | [http://127.0.0.1:5000](http://127.0.0.1:5000) | Select crop, home mandi, and quantity to discover highest net return. |
+| **📊 Mandi Comparison Dashboard (Screen 2)** | [http://127.0.0.1:5000/dashboard.html](http://127.0.0.1:5000/dashboard.html) | Ranked comparison table, route map, net earnings breakdown & audio readout. |
+| **🛒 Buyer Marketplace** | [http://127.0.0.1:5000/buyer](http://127.0.0.1:5000/buyer) | Direct crop trade board for bulk institutional buyers & millers. |
+| **⚙️ Admin Management Panel (Screen 3)** | [http://127.0.0.1:5000/admin](http://127.0.0.1:5000/admin) | Configure base freight rates, mandi fees, and master crops (Login: `admin` / `admin`). |
+
+### 5. Running Automated Backend Tests
+
+You can verify all calculations, math formulas, and marketplace logic standalone:
+
+```bash
+python test_services.py
+```
 
 ---
 
@@ -58,29 +93,33 @@ Open your browser to:
 ```
 KrishiMitra/
 ├── backend/
-│   ├── app.py                          # Flask entrypoint & API routing
-│   ├── config.py                       # Constants, DB paths, mock API toggle
+│   ├── app.py                          # Flask entrypoint & REST API routing
+│   ├── config.py                       # Configuration constants, DB paths, mock API toggle
 │   ├── database/
 │   │   ├── db_connection.py            # Thread-safe SQLite connection context manager
 │   │   ├── db_init.py                  # DDL table creation scripts
-│   │   └── seed_data.py                # Initial seed data matching SIH pitch deck
+│   │   └── seed_data.py                # Initial seed data for Maharashtra mandis & demo deals
 │   ├── models/
 │   │   ├── crop_model.py               # Crop data access methods
 │   │   ├── mandi_model.py              # Mandi coordinates & entity methods
 │   │   ├── price_model.py              # Mandi crop prices & historical points
 │   │   ├── distance_model.py           # Geographical distance matrix
-│   │   └── cost_model.py               # Loading, unloading, cess & freight rates
+│   │   ├── cost_model.py               # Loading, unloading, cess & freight rates
+│   │   └── deal_model.py               # Direct marketplace listings & inquiries
 │   ├── services/
-│   │   ├── transport_cost_calculator.py# Distance x Rate x Quantity pure calculator
-│   │   ├── net_price_calculator.py     # Mandi Price - Total Cost pure calculator
-│   │   ├── cost_estimation_service.py  # Loading, unloading, and market fees lookup
+│   │   ├── transport_cost_calculator.py# Pure distance × rate × quantity calculation
+│   │   ├── net_price_calculator.py     # Mandi Price − Total Costs pure calculation
+│   │   ├── cost_estimation_service.py  # Loading, unloading, and mandi fee lookup
 │   │   ├── maps_distance_service.py    # Distance Matrix lookup with GPS Haversine fallback
-│   │   ├── data_fetcher_service.py     # Agmarknet / e-NAM data fetcher & scheduler
-│   │   ├── price_comparison_engine.py  # Mandi price alignment across markets
-│   │   ├── ranking_recommendation_engine.py # Descending net price ranking engine
-│   │   ├── tts_engine.py               # Text-to-speech engine (Marathi/Hindi/English)
-│   │   ├── analytics_reports_service.py# 7-Day historical price trends & spread
-│   │   └── notification_service.py     # Price surge alerts & market advisories
+│   │   ├── data_fetcher_service.py     # Agmarknet / e-NAM live data fetcher
+│   │   ├── price_comparison_engine.py  # Multi-mandi price alignment
+│   │   ├── ranking_recommendation_engine.py # Descending net return ranking engine
+│   │   ├── tts_engine.py               # Multilingual voice synthesis (Marathi/Hindi/English)
+│   │   ├── analytics_reports_service.py# 7-day historical price trends & spread
+│   │   ├── notification_service.py     # Price surge alerts & market advisories
+│   │   ├── deal_listing_service.py     # Farmer deal creation & validation
+│   │   ├── buyer_feed_service.py       # Buyer feed with contact privacy protection
+│   │   └── deal_inquiry_service.py     # Inquiry registration & contact unlock
 │   ├── admin/
 │   │   └── admin_panel.py              # CRUD controller for administrative tools
 │   └── requirements.txt                # Python package dependencies
@@ -88,19 +127,23 @@ KrishiMitra/
 │   ├── index.html                      # Screen 1: Farmer Crop, Mandi & Quantity Form
 │   ├── dashboard.html                  # Screen 2: Mandi Compare & Effective Price Breakdown
 │   ├── admin.html                      # Screen 3: Master Data & Admin Management Panel
+│   ├── buyer/
+│   │   ├── index.html                  # Buyer Marketplace listing & inquiry modal
+│   │   └── js/buyer.js                 # Buyer feed handling & inquiries
 │   ├── css/style.css                   # Mobile-first, high contrast, farmer-friendly styling
 │   └── js/
 │       ├── app.js                      # Farmer input handling & localization
 │       ├── dashboard.js                # Comparison table, summary card, TTS, Google Maps
 │       └── admin.js                    # Admin panel CRUD operations
-└── README.md                           # Documentation & Phase 2 Integration Guide
+├── test_services.py                    # Standalone test suite for calculations & deals
+└── README.md                           # Documentation & Execution Guide
 ```
 
 ---
 
-## 🎯 Demo Values (Matching SIH Pitch Deck)
+## 🎯 Sample Benchmark Values
 
-When selecting **Cotton (कपास)** and **Home Mandi: Nagpur**:
+When selecting **Cotton (कपास)** and **Home Mandi: Nagpur (10 Quintals)**:
 
 | Rank | Mandi | Distance | Listing Price | Transport Cost (₹0.80/km) | Other Costs | **Net Farmer Return** | Status |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -116,39 +159,21 @@ When selecting **Cotton (कपास)** and **Home Mandi: Nagpur**:
 
 1. **Agmarknet Mandi Price Feed (data.gov.in XML API):**
    - **Resource ID:** `9ef84268-d588-465a-a308-a864a43d0070`
-   - **API Key:** `579b464db66ec23bdd000001cdd3946e44ce4aad7209ff7b23ac571b`
-   - **Format:** `xml` (Parsed with `xml.etree.ElementTree` in [`data_fetcher_service.py`](file:///c:/Users/HP-PC/Documents/KrishiMitra/backend/services/data_fetcher_service.py))
    - **Endpoint:** `https://api.data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070`
-   - Automatically parses `<modal_price>` / `<max_price>` filtered by commodity and market, with graceful fallback.
+   - Automatically parses `<modal_price>` / `<max_price>` filtered by commodity and market, with fallback.
 
 2. **Google Maps Platform (JavaScript & Distance Matrix API):**
-   - **API Key:** `AIzaSyDOkEUdOO0Lnb_7HpOZ41mBxc1RSO4QDeU`
-   - **Backend Routing:** [`maps_distance_service.py`](file:///c:/Users/HP-PC/Documents/KrishiMitra/backend/services/maps_distance_service.py) queries Google Maps Distance Matrix API.
-   - **Frontend Visualization:** [`dashboard.html`](file:///c:/Users/HP-PC/Documents/KrishiMitra/frontend/dashboard.html) renders an interactive Google Map with custom markers for Home Mandi (🏠), Champion recommended market (🏆), candidate mandis (📍), and driving polyline.
+   - Backend routing queries Distance Matrix API with Haversine fallback.
+   - Frontend renders an interactive Google Map with custom markers (🏠 Home, 🏆 Recommended, 📍 Candidates).
 
 ---
 
-## 🌐 Free Cloud Deployment Guide
+## 🌐 Deployment Options
 
-### Option 1: Deploy on Vercel (100% Free Serverless)
-Pre-configured with `vercel.json` and `api/index.py`:
-1. Push this folder to a GitHub repository.
-2. Sign up / Log in to [Vercel.com](https://vercel.com).
-3. Click **"Add New Project"** $\rightarrow$ Import your GitHub repository.
-4. Keep the default settings and click **"Deploy"**.
-5. Your live prototype URL will be generated (e.g. `https://krishimitra.vercel.app`).
-
-### Option 2: Deploy on Render.com (100% Free Web Service — Recommended)
+### Option 1: Render.com
 Pre-configured with `render.yaml` and `Procfile`:
-1. Push this repository to GitHub.
-2. Log in to [Render.com](https://render.com).
-3. Click **"New Web Service"** $\rightarrow$ Connect your GitHub repo.
-4. Settings:
-   - **Runtime:** `Python 3`
-   - **Build Command:** `pip install -r requirements.txt`
-   - **Start Command:** `gunicorn --chdir backend app:app`
-5. Click **"Deploy Web Service"** to get a free live URL (e.g. `https://krishimitra.onrender.com`).
+- **Build Command:** `pip install -r requirements.txt`
+- **Start Command:** `gunicorn --chdir backend app:app`
 
-### Option 3: Deploy on Railway.app / Koyeb
-1. Connect repository on [Railway.app](https://railway.app) or [Koyeb.com](https://koyeb.com).
-2. It will automatically detect `Procfile` and deploy your Flask app.
+### Option 2: Vercel Serverless
+Pre-configured with `vercel.json` and `api/index.py`.
