@@ -45,3 +45,11 @@ class Config:
     
     # Default transport rate per km per quintal (INR)
     DEFAULT_TRANSPORT_RATE = 0.80
+
+    # Advisory & Forecasting Configuration (Phase 4 Sell vs. Hold)
+    # When True, populates forecast_cache with plausible synthetic values for testing
+    MOCK_FORECAST_MODE = os.environ.get("MOCK_FORECAST_MODE", "False").lower() in ("true", "1")
+    
+    # Minimum projected net profit gain (₹/qtl) required over selling now to trigger a HOLD recommendation.
+    # Prevents trivial/noise-sized fluctuations from suggesting a wait.
+    MINIMUM_GAIN_THRESHOLD = float(os.environ.get("MINIMUM_GAIN_THRESHOLD", "15.0"))

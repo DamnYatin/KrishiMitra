@@ -243,6 +243,109 @@ def seed_db(db_path=None, force_reseed=False):
                     (deal_id, "Kothari Cotton Mill", "9890887766")
                 )
 
+        # 3. Seed Crop Holding Parameters (Phase 4 Sell vs. Hold)
+        cursor.execute("SELECT COUNT(*) as cnt FROM crop_holding_parameters")
+        if cursor.fetchone()["cnt"] == 0:
+            cursor.execute("SELECT id, name FROM crops")
+            all_crops = cursor.fetchall()
+            
+            # Default illustrative holding parameters per crop type
+            # daily_storage_cost (C_s, ₹/qtl/day)
+            # daily_depreciation_rate (δ, fractional loss/day e.g. 0.008 = 0.8%/day)
+            holding_param_map = {
+                "Cotton": (0.60, 0.0005),      # Low perishability, standard warehousing
+                "Soybean": (0.50, 0.0005),     # Low perishability, dry storage
+                "Wheat": (0.40, 0.0003),       # Highly durable grain, minimal daily loss
+                "Onion": (1.50, 0.0080),       # Perishable bulb, moisture loss + sprout risk
+                "Tur": (0.50, 0.0004),         # Pulses, low spoilage
+                "Gram": (0.45, 0.0004),        # Chana, stable storage
+            }
+
+            for row in all_crops:
+                c_id = row["id"]
+                c_name = row["name"]
+                
+                # Match crop keyword or default
+                matched_params = (0.50, 0.0005) # fallback default
+                for key, params in holding_param_map.items():
+                    if key.lower() in c_name.lower():
+                        matched_params = params
+                        break
+
+                cursor.execute(
+                    """INSERT OR REPLACE INTO crop_holding_parameters 
+                       (crop_id, daily_storage_cost, daily_depreciation_rate) 
+                       VALUES (?, ?, ?)""",
+                    (c_id, matched_params[0], matched_params[1])
+                )
+
+        # 4. Seed Extended Historical Price Data for SARIMAX Training (Phase 4)
+        cursor.execute("SELECT COUNT(*) as cnt FROM price_history_extended")
+        if cursor.fetchone()["cnt"] == 0:
+            cursor.execute("SELECT id, name FROM crops")
+            all_crops = cursor.fetchall()
+            cursor.execute("SELECT id, name FROM mandis")
+            all_mandis = cursor.fetchall()
+            
+            # Fetch baseline prices
+            cursor.execute("SELECT crop_id, mandi_id, price_per_quintal FROM prices")
+            base_prices = {(r["crop_id"], r["mandi_id"]): r["price_per_quintal"] for r in cursor.fetchall()}
+
+            today = datetime.date.today()
+            extended_records = []
+            
+            import math
+
+            # Seed 90 days of daily historical records for robust SARIMAX training
+            for c_row in all_crops:
+                c_id = c_row["id"]
+                c_name = c_row["name"]
+
+                for m_row in all_mandis:
+                    m_id = m_row["id"]
+                    
+                    # Intentionally keep one pair sparse (e.g., Gram in Nashik) to demonstrate UNAVAILABLE status gracefully
+                    if "Gram" in c_name and "Nashik" in m_row["name"]:
+                        # Only 3 data points — insufficient for SARIMAX
+                        for d_ago in range(3, 0, -1):
+                            dt = (today - datetime.timedelta(days=d_ago)).isoformat()
+                            base_p = base_prices.get((c_id, m_id), 5800.0)
+                            extended_records.append((c_id, m_id, dt, base_p, 10.0, 95.5))
+                        continue
+
+                    base_p = base_prices.get((c_id, m_id), 5000.0)
+                    
+                    # Different price trends for realistic forecasting demo:
+                    # e.g., Cotton & Soybean have an upward cyclical momentum (favoring HOLD)
+                    # Onion & Wheat have flat or slight downward pressure (favoring SELL)
+                    trend_slope = 0.0008 if "Cotton" in c_name or "Soybean" in c_name else -0.0004
+                    
+                    for days_ago in range(90, 0, -1):
+                        dt = (today - datetime.timedelta(days=days_ago)).isoformat()
+                        
+                        # Synthetic price formula: Base price + trend + 7-day weekly cycle + 30-day monthly wave + noise
+                        t_val = 90 - days_ago
+                        weekly_cycle = math.sin(2 * math.pi * (t_val % 7) / 7.0) * (base_p * 0.015)
+                        monthly_cycle = math.cos(2 * math.pi * (t_val % 30) / 30.0) * (base_p * 0.025)
+                        trend_factor = (t_val * trend_slope)
+                        
+                        price = round(base_p * (1.0 + trend_factor) + weekly_cycle + monthly_cycle, 2)
+                        
+                        # Exogenous variables
+                        # Rainfall index (0 to 100mm scale with seasonal burst)
+                        rainfall_idx = round(max(0.0, math.sin(t_val / 14.0) * 35.0 + 10.0), 2)
+                        # Fuel price index (stable around 94-98 ₹/L)
+                        fuel_idx = round(95.0 + math.sin(t_val / 20.0) * 2.5, 2)
+                        
+                        extended_records.append((c_id, m_id, dt, price, rainfall_idx, fuel_idx))
+
+            cursor.executemany(
+                """INSERT INTO price_history_extended 
+                   (crop_id, mandi_id, date, listing_price, rainfall_index, fuel_price_index) 
+                   VALUES (?, ?, ?, ?, ?, ?)""",
+                extended_records
+            )
+
 if __name__ == "__main__":
     seed_db()
     print("Database seeded with sample data successfully.")

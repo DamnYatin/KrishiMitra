@@ -450,6 +450,190 @@ body {
   white-space: nowrap;
 }
 
+/* ==========================================================================
+   Phase 4: Proactive AI Sell vs. Hold Advisory Card & Badge
+   ========================================================================== */
+
+.advisory-card {
+  border-radius: var(--radius-md);
+  padding: 0.95rem 1.15rem;
+  margin-bottom: 0.85rem;
+  box-shadow: var(--shadow-md);
+  transition: all 0.3s ease;
+  min-height: 52px;
+}
+
+.advisory-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.45rem;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.advisory-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  font-weight: 800;
+  padding: 0.28rem 0.8rem;
+  border-radius: var(--radius-full);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  line-height: 1;
+}
+
+.advisory-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.advisory-text {
+  font-size: 1rem; /* >= 16px farmer readability */
+  font-weight: 600;
+  line-height: 1.45;
+  margin: 0;
+}
+
+/* Visual States derived exclusively from theme emerald palette */
+.advisory-card.is-hold {
+  background: linear-gradient(135deg, var(--primary-dark), #166534);
+  border: 2px solid var(--primary-light);
+  box-shadow: 0 6px 20px rgba(15, 57, 27, 0.25);
+}
+
+.advisory-card.is-hold .advisory-badge {
+  background: var(--primary-subtle);
+  color: var(--primary-dark);
+}
+
+.advisory-card.is-hold .advisory-label {
+  color: #bbf7d0;
+}
+
+.advisory-card.is-hold .advisory-text {
+  color: #ffffff;
+}
+
+.advisory-card.is-sell {
+  background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+  border: 2px solid var(--primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.advisory-card.is-sell .advisory-badge {
+  background: var(--primary);
+  color: #ffffff;
+}
+
+.advisory-card.is-sell .advisory-label {
+  color: var(--primary-dark);
+}
+
+.advisory-card.is-sell .advisory-text {
+  color: var(--primary-dark);
+}
+
+.advisory-card.is-unavailable {
+  background: #f8fafc;
+  border: 1.5px solid var(--border-color);
+  box-shadow: none;
+}
+
+.advisory-card.is-unavailable .advisory-badge {
+  background: var(--text-light);
+  color: #ffffff;
+}
+
+.advisory-card.is-unavailable .advisory-label {
+  color: var(--text-light);
+}
+
+.advisory-card.is-unavailable .advisory-text {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+/* Advisory Metrics & Reasons Breakdown */
+.advisory-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.advisory-metric-chip {
+  padding: 0.45rem 0.65rem;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  flex-direction: column;
+}
+
+.advisory-card.is-sell .advisory-metric-chip {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+}
+
+.advisory-card.is-unavailable .advisory-metric-chip {
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+}
+
+.advisory-metric-chip .metric-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  opacity: 0.85;
+}
+
+.advisory-card.is-sell .advisory-metric-chip .metric-label {
+  color: var(--text-muted);
+}
+
+.advisory-metric-chip .metric-value {
+  font-size: 0.95rem;
+  font-weight: 800;
+  margin-top: 0.1rem;
+}
+
+.advisory-card.is-hold .advisory-metric-chip.highlight {
+  background: rgba(220, 252, 231, 0.22);
+  border-color: var(--primary-light);
+}
+
+.advisory-card.is-sell .advisory-metric-chip.highlight {
+  background: #ecfdf5;
+  border-color: var(--primary);
+  color: var(--primary-dark);
+}
+
+.advisory-reasons-list {
+  margin-top: 0.65rem;
+  padding-top: 0.5rem;
+  border-top: 1px dashed rgba(255, 255, 255, 0.2);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.advisory-card.is-sell .advisory-reasons-list {
+  border-top-color: #cbd5e1;
+  color: var(--text-main);
+}
+
+.advisory-reason-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.35rem;
+  margin-bottom: 0.3rem;
+}
+
 /* Winner Banner Card */
 .winner-card {
   background: linear-gradient(135deg, #fffbeb, #fef3c7);

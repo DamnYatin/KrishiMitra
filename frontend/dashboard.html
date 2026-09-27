@@ -69,7 +69,40 @@
         </div>
       </section>
 
-      <!-- 2. Screen 2 Champion Winner Recommendation Card -->
+      <!-- 2. Phase 4: AI Sell vs. Hold Proactive Advisory Badge & Insight -->
+      <section class="advisory-card is-hold" id="advisorySection" aria-label="AI Sell vs Hold Recommendation" style="display: none;">
+        <div class="advisory-header">
+          <span class="advisory-badge" id="advisoryBadge">
+            <span id="advisoryBadgeIcon">💡</span>
+            <span id="advisoryBadgeText">AI Advisory</span>
+          </span>
+          <span class="advisory-label" id="advisoryLabel" data-i18n="advisoryCardTitle">AI Market Advisory (7-Day Forecast)</span>
+        </div>
+        
+        <!-- Primary Headline Reason -->
+        <p class="advisory-text" id="advisoryMessageText">Loading forecast advisory...</p>
+
+        <!-- Detailed Financial & Market Reason Chips -->
+        <div class="advisory-metrics-grid" id="advisoryMetricsGrid" style="display: none;">
+          <div class="advisory-metric-chip">
+            <span class="metric-label" id="advisoryForecastLabel" data-i18n="advisoryForecastLabel">7-Day Price Forecast</span>
+            <strong class="metric-value" id="advisoryForecastPrice">--</strong>
+          </div>
+          <div class="advisory-metric-chip">
+            <span class="metric-label" id="advisoryHoldingLabel" data-i18n="advisoryHoldingLabel">Storage & Spoilage</span>
+            <strong class="metric-value" id="advisoryHoldingCost">--</strong>
+          </div>
+          <div class="advisory-metric-chip highlight">
+            <span class="metric-label" id="advisoryOutcomeLabel" data-i18n="advisoryOutcomeLabel">Net Outcome</span>
+            <strong class="metric-value" id="advisoryOutcomeValue">--</strong>
+          </div>
+        </div>
+
+        <!-- Detailed Bullet Reasons -->
+        <div class="advisory-reasons-list" id="advisoryReasonsList" style="display: none;"></div>
+      </section>
+
+      <!-- 3. Screen 2 Champion Winner Recommendation Card -->
       <section class="winner-card" aria-label="Winner Recommendation Card">
         <span class="winner-badge" data-i18n="bestChoiceBadge">🏆 Recommended Market (Highest Net Return)</span>
         

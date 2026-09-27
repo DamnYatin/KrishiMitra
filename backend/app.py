@@ -40,6 +40,8 @@ from services.buyer_feed_service import get_buyer_feed
 from services.deal_inquiry_service import register_inquiry
 from models.deal_model import DealModel
 from admin.admin_panel import AdminController
+from services.advisory_engine import get_sell_vs_hold_advisory
+from services.forecast_service import train_sarimax_models, get_cached_forecast
 
 # Resolve frontend directory path
 FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend"
@@ -59,6 +61,13 @@ else:
 with app.app_context():
     init_db()
     seed_db()
+    # Check if forecast cache is primed; if not, run batch training job
+    from database.db_connection import get_db_connection
+    with get_db_connection() as conn:
+        c = conn.cursor()
+        c.execute("SELECT COUNT(*) as cnt FROM forecast_cache")
+        if c.fetchone()["cnt"] == 0:
+            train_sarimax_models()
 
 # ==========================================
 # Frontend Page Routes
@@ -217,22 +226,81 @@ def compare_mandis():
 
     return jsonify({"status": "success", "data": result})
 
+@app.route("/api/v1/recommendation", methods=["GET"])
+def get_ai_recommendation():
+    """
+    Phase 4: Proactive Sell vs. Hold Advisory Endpoint.
+    Evaluates current net return at top market vs 7-day future price forecast factoring
+    storage cost and depreciation/spoilage rate.
+    """
+    crop_id = request.args.get("crop_id")
+    home_mandi_id = request.args.get("home_mandi_id")
+    quantity = request.args.get("quantity", 1.0)
+    horizon_days = request.args.get("horizon_days", 7)
+
+    if not crop_id or not home_mandi_id:
+        return jsonify({
+            "status": "error",
+            "decision": "UNAVAILABLE",
+            "message": "Both crop_id and home_mandi_id are required.",
+            "explanation_key": "missing_parameters",
+            "explanation_values": {}
+        }), 400
+
+    try:
+        crop_id = int(crop_id)
+        home_mandi_id = int(home_mandi_id)
+        quantity = float(quantity) if float(quantity) > 0 else 1.0
+        horizon_days = int(horizon_days) if int(horizon_days) > 0 else 7
+    except ValueError:
+        return jsonify({
+            "status": "error",
+            "decision": "UNAVAILABLE",
+            "message": "Invalid numeric parameter format.",
+            "explanation_key": "invalid_parameters",
+            "explanation_values": {}
+        }), 400
+
+    advisory = get_sell_vs_hold_advisory(
+        crop_id=crop_id,
+        home_mandi_id=home_mandi_id,
+        quantity=quantity,
+        horizon_days=horizon_days
+    )
+
+    return jsonify(advisory)
+
 @app.route("/api/speak", methods=["POST"])
 def speak_recommendation():
     """
-    Synthesizes multilingual voice audio (English, Hindi, Marathi) for recommendation.
+    Synthesizes multilingual voice audio (English, Hindi, Marathi) for recommendation,
+    prepending the proactive AI Sell vs. Hold advisory.
     """
     data = request.get_json() or {}
     mandi_name = data.get("mandi_name", "")
     crop_name = data.get("crop_name", "")
     net_price = data.get("net_price", 0.0)
     language = data.get("language", "en")
+    advisory_decision = data.get("advisory_decision")
+    advisory_gain = data.get("advisory_gain", 0.0)
+    advisory_days = data.get("advisory_days", 7)
+    advisory_text = data.get("advisory_text")
+    loss_avoided = data.get("loss_avoided", 0.0)
+    forecast_price = data.get("forecast_price")
+    storage_cost = data.get("storage_cost")
 
     speech_result = generate_speech(
         mandi_name=mandi_name,
         crop_name=crop_name,
         net_price=net_price,
-        language=language
+        language=language,
+        advisory_decision=advisory_decision,
+        advisory_gain=advisory_gain,
+        advisory_days=advisory_days,
+        advisory_text=advisory_text,
+        loss_avoided=loss_avoided,
+        forecast_price=forecast_price,
+        storage_cost=storage_cost
     )
 
     return jsonify(speech_result)

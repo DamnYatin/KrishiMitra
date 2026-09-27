@@ -45,30 +45,69 @@ def clean_mandi_name(raw_name, lang="en"):
         return regional
     return raw_name
 
-def get_speech_script(mandi_name, crop_name, net_price, language="en"):
-    """Generates natural language script in chosen language."""
+def get_speech_script(mandi_name, crop_name, net_price, language="en", advisory_decision=None, advisory_gain=0.0, advisory_days=7, advisory_text=None, loss_avoided=0.0, forecast_price=None, storage_cost=None):
+    """
+    Generates natural language script in chosen language, prepending AI Sell vs. Hold decision
+    with actionable reasons and profit/loss avoided metrics before champion recommendation.
+    """
     clean_crop = clean_crop_name(crop_name, language)
     clean_mandi = clean_mandi_name(mandi_name, language)
     price_val = int(round(float(net_price)))
+    gain_val = int(round(float(advisory_gain)))
+    loss_val = int(round(float(loss_avoided))) if loss_avoided else int(round(abs(float(advisory_gain))))
+
+    advisory_prefix = ""
+    if advisory_text:
+        advisory_prefix = advisory_text.strip() + " "
+    elif advisory_decision:
+        dec = str(advisory_decision).upper()
+        if dec == "HOLD":
+            if language == "mr":
+                advisory_prefix = f"कृषिमित्र सल्ला: माल {advisory_days} दिवस थांबवून ठेवा. कारण: बाजारभाव वाढण्याचा अंदाज असून साठवणूक खर्च वजा जाता प्रति क्विंटल अंदाजे {gain_val} रुपये जास्त निव्वळ नफा मिळेल. "
+            elif language == "hi":
+                advisory_prefix = f"कृषिमित्र सलाह: उपज {advisory_days} दिन रोककर रखें। कारण: मंडी भाव बढ़ने की उम्मीद है और भंडारण खर्च काटकर प्रति क्विंटल लगभग {gain_val} रुपये का अतिरिक्त शुद्ध मुनाफा होगा। "
+            else:
+                advisory_prefix = f"KrishiMitra Advisory: Hold your produce for {advisory_days} days. Reason: Prices are forecasted to rise, giving you an estimated net profit gain of {gain_val} rupees per quintal after storage deductions. "
+        elif dec == "SELL":
+            if language == "mr":
+                loss_clause = f" आणि थांबल्यास होणारे प्रति क्विंटल {loss_val} रुपयांचे नुकसान टळेल" if loss_val > 0 else ""
+            elif language == "hi":
+                loss_clause = f" और रुकने पर होने वाले प्रति क्विंटल {loss_val} रुपये के नुकसान से बचाव होगा" if loss_val > 0 else ""
+            else:
+                loss_clause = f" and protects you from a potential loss of {loss_val} rupees per quintal" if loss_val > 0 else ""
+
+            if language == "mr":
+                advisory_prefix = f"कृषिमित्र सल्ला: आजच माल विका. कारण: पुढील काळात भाव स्थिर किंवा कमी राहण्याचा अंदाज आहे. आज विक्री केल्यास सर्वोत्तम परतावा मिळेल{loss_clause}. "
+            elif language == "hi":
+                advisory_prefix = f"कृषिमित्र सलाह: आज ही फसल बेचें। कारण: आगे भाव गिरने या स्थिर रहने का अनुमान है। आज बेचने पर सबसे अच्छा भाव मिलेगा{loss_clause}। "
+            else:
+                advisory_prefix = f"KrishiMitra Advisory: Sell your produce today. Reason: Future prices are predicted to remain flat or drop. Selling now locks in your best return{loss_clause}. "
 
     if language == "mr":
-        script = f"तुमच्या {clean_crop}साठी सर्वात उत्तम मंडी {clean_mandi} आहे. येथे सर्व वाहतूक आणि खर्च वजा करून निव्वळ नफा {price_val} रुपये प्रति क्विंटल मिळेल."
+        mandi_script = f"तुमच्या {clean_crop}साठी सर्वात उत्तम मंडी {clean_mandi} आहे. येथे सर्व वाहतूक आणि खर्च वजा करून निव्वळ नफा {price_val} रुपये प्रति क्विंटल मिळेल."
     elif language == "hi":
-        script = f"आपकी {clean_crop} के लिए सबसे अच्छी मंडी {clean_mandi} है। यहाँ सभी परिवहन और खर्चे काटकर शुद्ध भाव {price_val} रुपये प्रति क्विंटल मिलेगा।"
+        mandi_script = f"आपकी {clean_crop} के लिए सबसे अच्छी मंडी {clean_mandi} है। यहाँ सभी परिवहन और खर्चे काटकर शुद्ध भाव {price_val} रुपये प्रति क्विंटल मिलेगा।"
     else:
-        script = f"The best mandi for your {clean_crop} is {clean_mandi}, with a net price of {price_val} rupees per quintal after deducting all transport and mandi costs."
+        mandi_script = f"The best mandi for your {clean_crop} is {clean_mandi}, with a net price of {price_val} rupees per quintal after deducting all transport and mandi costs."
 
-    return script
+    return (advisory_prefix + mandi_script).strip()
 
-def generate_speech(mandi_name, crop_name, net_price, language="en"):
+def generate_speech(mandi_name, crop_name, net_price, language="en", advisory_decision=None, advisory_gain=0.0, advisory_days=7, advisory_text=None, loss_avoided=0.0, forecast_price=None, storage_cost=None):
     """
-    Synthesizes speech script into audio.
+    Synthesizes speech script into audio with prepended AI advisory decision.
 
     Parameters:
         mandi_name (str): Name of winning mandi
         crop_name (str): Name of crop
         net_price (float): Realized net price in INR
         language (str): Language code ('en', 'hi', 'mr')
+        advisory_decision (str, optional): 'HOLD' | 'SELL' | 'UNAVAILABLE'
+        advisory_gain (float, optional): Projected gain in INR/qtl
+        advisory_days (int, optional): Horizon in days
+        advisory_text (str, optional): Custom localized advisory text
+        loss_avoided (float, optional): Loss avoided in INR/qtl
+        forecast_price (float, optional): Forecast listing price in INR
+        storage_cost (float, optional): Storage cost in INR/qtl
 
     Returns:
         dict: Audio metadata, localized text script, and base64 audio data
@@ -84,7 +123,19 @@ def generate_speech(mandi_name, crop_name, net_price, language="en"):
         "mr": "mr"
     }.get(lang_code, "en")
 
-    script = get_speech_script(mandi_name, crop_name, net_price, lang_code)
+    script = get_speech_script(
+        mandi_name=mandi_name,
+        crop_name=crop_name,
+        net_price=net_price,
+        language=lang_code,
+        advisory_decision=advisory_decision,
+        advisory_gain=advisory_gain,
+        advisory_days=advisory_days,
+        advisory_text=advisory_text,
+        loss_avoided=loss_avoided,
+        forecast_price=forecast_price,
+        storage_cost=storage_cost
+    )
     audio_base64 = None
     audio_format = "mp3"
     tts_engine_used = "none"

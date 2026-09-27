@@ -100,6 +100,38 @@ def init_db(db_path=None):
         inquired_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (deal_id) REFERENCES deals(id) ON DELETE CASCADE
     );
+
+    -- Phase 4: Sell vs. Hold Advisory Engine Schema Expansion
+    CREATE TABLE IF NOT EXISTS price_history_extended (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        crop_id INTEGER NOT NULL,
+        mandi_id INTEGER NOT NULL,
+        date DATE NOT NULL,
+        listing_price REAL NOT NULL,
+        rainfall_index REAL,
+        fuel_price_index REAL,
+        FOREIGN KEY (crop_id) REFERENCES crops(id) ON DELETE CASCADE,
+        FOREIGN KEY (mandi_id) REFERENCES mandis(id) ON DELETE CASCADE
+    );
+
+    CREATE TABLE IF NOT EXISTS crop_holding_parameters (
+        crop_id INTEGER PRIMARY KEY,
+        daily_storage_cost REAL NOT NULL,      -- C_s, ₹ per qtl per day
+        daily_depreciation_rate REAL NOT NULL, -- δ, fraction per day (e.g. 0.01 = 1%/day)
+        FOREIGN KEY (crop_id) REFERENCES crops(id) ON DELETE CASCADE
+    );
+
+    CREATE TABLE IF NOT EXISTS forecast_cache (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        crop_id INTEGER NOT NULL,
+        mandi_id INTEGER NOT NULL,
+        forecast_date DATE NOT NULL,       -- the date this forecast was generated
+        horizon_days INTEGER NOT NULL,     -- 7, 14, or 30
+        predicted_price REAL NOT NULL,     -- P_t
+        generated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (crop_id) REFERENCES crops(id) ON DELETE CASCADE,
+        FOREIGN KEY (mandi_id) REFERENCES mandis(id) ON DELETE CASCADE
+    );
     """
 
     with get_db_connection(db_path) as conn:
