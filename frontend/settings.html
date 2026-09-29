@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>KrishiMitra - Settings & Logistics Configuration</title>
+
+  <!-- Google Fonts: Poppins -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <!-- Top App Header -->
+  <header class="app-header">
+    <div class="header-container">
+      <a href="/" class="brand-wrapper">
+        <span class="brand-icon">⚙️</span>
+        <div>
+          <h1 class="brand-title">KrishiMitra Admin</h1>
+          <p class="brand-subtitle">Master Data & Logistics Configuration</p>
+        </div>
+      </a>
+      <div style="display: flex; gap: 0.5rem; align-items: center;">
+        <span class="admin-header-pill">👤admin</span>
+        <a href="/" class="admin-header-link">🚪 Logout</a>
+        <a href="/" class="admin-farmer-link">🌾 Farmer View</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content" style="max-width: 780px;">
+
+    <!-- SETTINGS DASHBOARD & TABS -->
+    <div id="adminDashboardSection" style="display: block;">
+
+      <!-- Navigation Tabs -->
+      <div class="admin-nav-tabs">
+        <button class="admin-tab-btn" data-target="tabRate">🚛 Transport Rate</button>
+        <button class="admin-tab-btn active" data-target="tabCrops">🌱 Crops</button>
+        <button class="admin-tab-btn" data-target="tabMandis">🏛️ Mandis</button>
+        <button class="admin-tab-btn" data-target="tabDistances">✏️ Distances</button>
+        <button class="admin-tab-btn" data-target="tabCosts">📦 Handling Costs</button>
+        <button class="admin-tab-btn" data-target="tabPrices">🏷️ Live Prices</button>
+      </div>
+
+      <!-- TAB 1: Transport Rate -->
+      <section class="card admin-tab-content" id="tabRate" style="display: none;">
+        <h2 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 0.5rem;">🚛 Baseline Transport Freight Rate</h2>
+        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+          Sets the per-kilometer, per-quintal freight rate used by the Transport Cost Calculator.
+        </p>
+        
+        <form id="updateRateForm" style="display: flex; gap: 0.75rem; align-items: flex-end; flex-wrap: wrap;">
+          <div class="form-group" style="margin-bottom: 0; flex: 1; min-width: 200px;">
+            <label class="form-label" style="font-size: 0.95rem;">Rate (₹ / km / quintal)</label>
+            <input type="number" id="adminTransportRateInput" class="form-input" step="0.01" min="0.1" value="0.80" required>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width: auto; min-width: 140px;">Save Rate</button>
+        </form>
+      </section>
+
+      <!-- TAB 2: Crops -->
+      <section class="card admin-tab-content" id="tabCrops" style="display: block;">
+        <h2 style="font-size: 1.35rem; font-weight: 800; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">🌱 Manage Crops</h2>
+        
+        <!-- Add Crop Form with Recommendations -->
+        <div style="position: relative; margin-bottom: 1.5rem;">
+          <form id="addCropForm" style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;" autocomplete="off">
+            <div style="position: relative; flex: 1; min-width: 240px;">
+              <input type="text" id="newCropName" class="form-input" placeholder="Search / enter Crop (e.g. Maize / मक्का)" required autocomplete="off" list="cropDatalist" style="width: 100%;">
+              <datalist id="cropDatalist"></datalist>
+              
+              <!-- Live interactive crop suggestions dropdown -->
+              <div id="cropSuggestionsDropdown" style="display: none; position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: #ffffff; border: 1.5px solid var(--border-color); border-radius: var(--radius-md); box-shadow: 0 10px 25px rgba(0,0,0,0.12); z-index: 100; max-height: 260px; overflow-y: auto;">
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary" id="addCropBtn" style="width: auto; min-width: 140px; font-weight: 700;">+ Add Crop</button>
+          </form>
+
+          <!-- Quick Recommended Crops Pills -->
+          <div style="margin-top: 0.85rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+            <span style="font-size: 0.82rem; font-weight: 600; color: #64748b;">Recommended to Add:</span>
+            <div id="cropQuickPills" style="display: flex; gap: 0.45rem; flex-wrap: wrap;">
+              <!-- Populated dynamically -->
+            </div>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th style="width: 60px;">ID</th>
+                <th>Crop Name</th>
+                <th style="width: 100px; text-align: center;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="cropsTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- TAB 3: Mandis -->
+      <section class="card admin-tab-content" id="tabMandis" style="display: none;">
+        <h2 style="font-size: 1.35rem; font-weight: 800; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">🏛️ Manage Mandis (APMCs)</h2>
+        
+        <!-- Add Mandi Form with Autocomplete Recommendations -->
+        <div style="position: relative; margin-bottom: 1rem;">
+          <form id="addMandiForm" style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;" autocomplete="off">
+            <div style="position: relative; flex: 1; min-width: 240px;">
+              <input type="text" id="newMandiName" class="form-input" placeholder="Search / enter Mandi (e.g. Yavatmal / यवतमाळ)" required autocomplete="off" list="mandiDatalist" style="width: 100%;">
+              <datalist id="mandiDatalist"></datalist>
+              
+              <!-- Live interactive suggestions dropdown -->
+              <div id="mandiSuggestionsDropdown" style="display: none; position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: #ffffff; border: 1.5px solid var(--border-color); border-radius: var(--radius-md); box-shadow: 0 10px 25px rgba(0,0,0,0.12); z-index: 100; max-height: 260px; overflow-y: auto;">
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary" id="addMandiBtn" style="width: auto; min-width: 150px; font-weight: 700;">+ Add Mandi</button>
+          </form>
+
+          <!-- Quick Recommended Mandis Pills -->
+          <div style="margin-top: 0.85rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+            <span style="font-size: 0.82rem; font-weight: 600; color: #64748b;">Recommended to Add:</span>
+            <div id="mandiQuickPills" style="display: flex; gap: 0.45rem; flex-wrap: wrap;">
+              <!-- Populated dynamically -->
+            </div>
+          </div>
+        </div>
+        <p style="font-size: 0.82rem; color: #64748b; margin-top: 0.5rem; margin-bottom: 1.25rem; line-height: 1.45;">
+          💡 <em>Coordinates (Lat, Lng) and distances to Nagpur & other markets are automatically resolved via Google Maps Geocoding & Distance Matrix API.</em>
+        </p>
+
+        <div class="table-responsive">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th style="width: 60px;">ID</th>
+                <th>Mandi Name</th>
+                <th>Coordinates (Lat, Lng)</th>
+                <th style="width: 100px; text-align: center;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="mandisTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- TAB 4: Distances -->
+      <section class="card admin-tab-content" id="tabDistances" style="display: none;">
+        <h2 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 1rem;">📏 Inter-Mandi Distances</h2>
+        
+        <!-- Add/Set Distance Form -->
+        <form id="setDistanceForm" class="admin-form-grid-4">
+          <select id="distFromSelect" class="form-select" required></select>
+          <select id="distToSelect" class="form-select" required></select>
+          <input type="number" id="distKmInput" class="form-input" step="0.1" placeholder="Distance (km)" required>
+          <button type="submit" class="btn btn-primary">Set Distance</button>
+        </form>
+
+        <div class="table-responsive">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>From Mandi</th>
+                <th>To Mandi</th>
+                <th>Distance</th>
+                <th style="width: 80px;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="distancesTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- TAB 5: Other Costs -->
+      <section class="card admin-tab-content" id="tabCosts" style="display: none;">
+        <h2 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 1rem;">📦 Mandi Handling & Statutory Fees</h2>
+        
+        <!-- Update Cost Form -->
+        <form id="updateCostForm" class="admin-form-grid-4" style="grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)) auto;">
+          <select id="costMandiSelect" class="form-select" required></select>
+          <input type="number" id="costLoadingInput" class="form-input" step="0.5" placeholder="Loading (₹)" value="0">
+          <input type="number" id="costUnloadingInput" class="form-input" step="0.5" placeholder="Unloading (₹)" value="0">
+          <input type="number" id="costMarketChargeInput" class="form-input" step="0.5" placeholder="Market Fee (₹)" value="0">
+          <button type="submit" class="btn btn-primary">Save Fees</button>
+        </form>
+
+        <div class="table-responsive">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Mandi</th>
+                <th>Loading</th>
+                <th>Unloading</th>
+                <th>Market Fee</th>
+                <th>Total Other / qtl</th>
+              </tr>
+            </thead>
+            <tbody id="costsTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- TAB 6: Prices -->
+      <section class="card admin-tab-content" id="tabPrices" style="display: none;">
+        <h2 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 1rem;">🏷️ Override Active Mandi Prices</h2>
+        
+        <!-- Override Price Form -->
+        <form id="updatePriceForm" class="admin-form-grid-4">
+          <select id="priceCropSelect" class="form-select" required></select>
+          <select id="priceMandiSelect" class="form-select" required></select>
+          <input type="number" id="pricePerQtlInput" class="form-input" step="1" placeholder="Price (₹/qtl)" required>
+          <button type="submit" class="btn btn-primary">Update Price</button>
+        </form>
+
+        <div class="table-responsive">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Crop</th>
+                <th>Mandi</th>
+                <th>Price / Quintal</th>
+                <th>Last Updated</th>
+              </tr>
+            </thead>
+            <tbody id="pricesTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+    </div><!-- End #adminDashboardSection -->
+
+  </main>
+
+  <script src="/js/settings.js"></script>
+</body>
+</html>

@@ -84,9 +84,10 @@ def serve_dashboard():
     return send_from_directory(str(FRONTEND_DIR), "dashboard.html")
 
 @app.route("/admin")
-def serve_admin():
-    """Serves Screen 3: Admin Management Screen."""
-    return send_from_directory(str(FRONTEND_DIR), "admin.html")
+@app.route("/settings")
+def serve_settings():
+    """Serves System Settings Screen."""
+    return send_from_directory(str(FRONTEND_DIR), "settings.html")
 
 @app.route("/buyer")
 def serve_buyer():
@@ -342,40 +343,27 @@ def crop_recommendations():
     return jsonify({"status": "success", "recommendations": recs})
 
 # ==========================================
-# Admin Panel Authentication & CRUD Endpoints
+# System Settings & Logistics Configuration Endpoints
 # ==========================================
 
 def is_admin_authorized(req):
-    """Verifies authorization header token."""
-    auth_header = req.headers.get("Authorization", "")
-    if auth_header.startswith("Bearer "):
-        token = auth_header.split(" ")[1]
-        return AdminController.validate_token(token)
-    return False
+    """Open access for settings configuration without login restrictions."""
+    return True
 
 @app.route("/api/admin/login", methods=["POST"])
 def admin_login():
-    """Authenticates admin user and returns session auth token."""
-    data = request.get_json() or {}
-    username = data.get("username", "").strip()
-    password = data.get("password", "").strip()
-
-    result = AdminController.authenticate(username, password)
-    status_code = 200 if result.get("authenticated") else 401
-    return jsonify(result), status_code
+    """Returns successful status for backward compatibility."""
+    return jsonify({"status": "success", "authenticated": True, "username": "Admin", "token": "open-settings-token"})
 
 @app.route("/api/admin/check-auth", methods=["GET"])
 def admin_check_auth():
-    """Checks whether current request token is valid."""
-    if is_admin_authorized(request):
-        return jsonify({"status": "success", "authenticated": True, "username": Config.ADMIN_USERNAME})
-    return jsonify({"status": "error", "authenticated": False, "message": "Unauthorized"}), 401
+    """Returns authenticated status for settings."""
+    return jsonify({"status": "success", "authenticated": True, "username": "Admin"})
 
 @app.route("/api/admin/overview", methods=["GET"])
+@app.route("/api/settings/overview", methods=["GET"])
 def admin_overview():
-    """Returns full dataset overview for administrative control panel."""
-    if not is_admin_authorized(request):
-        return jsonify({"status": "error", "message": "Unauthorized. Please log in as admin."}), 401
+    """Returns full dataset overview for settings panel."""
     overview = AdminController.get_full_admin_overview()
     return jsonify({"status": "success", "data": overview})
 

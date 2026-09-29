@@ -44,6 +44,7 @@ const dashboardTranslations = {
     refreshingRates: "⚡ Fetching latest live rates...",
     ratesRefreshed: "✅ Live rates refreshed successfully",
     ratesRefreshError: "⚠️ Could not refresh live rates",
+    lastUpdatedPrefix: "Last updated",
     
     // Phase 4: Proactive AI Sell vs. Hold Advisory
     advisoryCardTitle: "AI Market Advisory (7-Day Forecast)",
@@ -86,6 +87,7 @@ const dashboardTranslations = {
     refreshingRates: "⚡ नवीनतम लाइव भाव प्राप्त किए जा रहे हैं...",
     ratesRefreshed: "✅ लाइव भाव सफलतापूर्वक रीफ्रेश हो गए",
     ratesRefreshError: "⚠️ लाइव भाव रीफ्रेश नहीं हो सके",
+    lastUpdatedPrefix: "अंतिम अपडेट",
 
     // Phase 4: Proactive AI Sell vs. Hold Advisory
     advisoryCardTitle: "एआई बाजार सलाह (7 दिवसीय पूर्वानुमान)",
@@ -128,6 +130,7 @@ const dashboardTranslations = {
     refreshingRates: "⚡ ताजे बाजारभाव आणत आहे...",
     ratesRefreshed: "✅ ताजे दर यशस्वीरित्या अपडेट झाले",
     ratesRefreshError: "⚠️ ताजे दर अपडेट होऊ शकले नाहीत",
+    lastUpdatedPrefix: "शेवटचे अपडेट",
 
     // Phase 4: Proactive AI Sell vs. Hold Advisory
     advisoryCardTitle: "एआय बाजार सल्ला (७ दिवसांचा अंदाज)",
@@ -247,7 +250,7 @@ function renderAdvisoryUI(advisory) {
   section.className = "advisory-card";
 
   if (titleElem) {
-    titleElem.textContent = dict.advisoryCardTitle || "AI Market Advisory (7-Day Forecast)";
+    titleElem.textContent = dict.advisoryCardTitle || "⏱️ 7-Day Horizon";
   }
   if (forecastLabel) forecastLabel.textContent = dict.advisoryForecastLabel || "7-Day Price Forecast";
   if (holdingLabel) holdingLabel.textContent = dict.advisoryHoldingLabel || "Storage & Spoilage";
@@ -300,56 +303,56 @@ function renderAdvisoryUI(advisory) {
 
     // 4. Reasons List
     if (reasonsList) {
-      reasonsList.style.display = "block";
+      reasonsList.style.display = "flex";
       const cleanMandi = formatName(advisory.recommended_mandi_name || "", currentLang);
       
       if (currentLang === "hi") {
         if (decision === "HOLD") {
           reasonsList.innerHTML = `
-            <div class="advisory-reason-item"><span>📊</span> <span><strong>भाव बढ़ने का अनुमान:</strong> ${cleanMandi} में भाव ₹${advisory.current_gross_price_per_qtl || 0} से बढ़कर ₹${advisory.forecast_listing_price} होने की उम्मीद है।</span></div>
-            <div class="advisory-reason-item"><span>📦</span> <span><strong>कम साठवणूक खर्च:</strong> 7 दिनों का गोदाम व नमी नुकसान खर्च मात्र ₹${totalHolding}/क्विंटल है।</span></div>
-            <div class="advisory-reason-item"><span>💰</span> <span><strong>शुद्ध मुनाफा:</strong> फसल रोककर बेचने पर आपको प्रति क्विंटल <strong>₹${advisory.projected_gain_per_qtl} का अतिरिक्त शुद्ध लाभ (कुल ₹${advisory.projected_gain_total})</strong> मिलेगा।</span></div>
+            <div class="advisory-reason-item"><span class="reason-icon">📊</span> <span class="reason-text"><strong>भाव बढ़ने का अनुमान:</strong> ${cleanMandi} में भाव ₹${advisory.current_gross_price_per_qtl || 0} से बढ़कर ₹${advisory.forecast_listing_price} होने की उम्मीद है।</span></div>
+            <div class="advisory-reason-item"><span class="reason-icon">📦</span> <span class="reason-text"><strong>कम साठवणूक खर्च:</strong> 7 दिनों का गोदाम व नमी नुकसान खर्च मात्र ₹${totalHolding}/क्विंटल है।</span></div>
+            <div class="advisory-reason-item"><span class="reason-icon">💰</span> <span class="reason-text"><strong>शुद्ध मुनाफा:</strong> फसल रोककर बेचने पर आपको प्रति क्विंटल <strong>₹${advisory.projected_gain_per_qtl} का अतिरिक्त शुद्ध लाभ (कुल ₹${advisory.projected_gain_total})</strong> मिलेगा।</span></div>
           `;
         } else {
           const lossAvoided = advisory.loss_avoided_per_qtl || Math.abs(advisory.projected_gain_per_qtl);
           const lossTotal = advisory.loss_avoided_total || Math.abs(advisory.projected_gain_total);
           reasonsList.innerHTML = `
-            <div class="advisory-reason-item"><span>📊</span> <span><strong>भाव का रुझान:</strong> ${cleanMandi} में आगे भाव गिरने या स्थिर रहने का अनुमान है, जो खर्चों की भरपाई नहीं करता।</span></div>
-            <div class="advisory-reason-item"><span>📦</span> <span><strong>अतिरिक्त खर्च से बचाव:</strong> रुकने पर ₹${totalHolding}/क्विंटल का अनावश्यक गोदाम व खराबी खर्च लगेगा।</span></div>
-            <div class="advisory-reason-item"><span>💰</span> <span><strong>नुकसान से सुरक्षा:</strong> आज ही बेचने पर <strong>₹${lossAvoided}/क्विंटल (कुल ₹${lossTotal})</strong> का नुकसान टलेगा।</span></div>
+            <div class="advisory-reason-item"><span class="reason-icon">📊</span> <span class="reason-text"><strong>भाव का रुझान:</strong> ${cleanMandi} में आगे भाव गिरने या स्थिर रहने का अनुमान है, जो खर्चों की भरपाई नहीं करता।</span></div>
+            <div class="advisory-reason-item"><span class="reason-icon">📦</span> <span class="reason-text"><strong>अतिरिक्त खर्च से बचाव:</strong> रुकने पर ₹${totalHolding}/क्विंटल का अनावश्यक गोदाम व खराबी खर्च लगेगा।</span></div>
+            <div class="advisory-reason-item"><span class="reason-icon">💰</span> <span class="reason-text"><strong>नुकसान से सुरक्षा:</strong> आज ही बेचने पर <strong>₹${lossAvoided}/क्विंटल (कुल ₹${lossTotal})</strong> का नुकसान टलेगा।</span></div>
           `;
         }
       } else if (currentLang === "mr") {
         if (decision === "HOLD") {
           reasonsList.innerHTML = `
-            <div class="advisory-reason-item"><span>📊</span> <span><strong>बाजारभाव वाढीचा अंदाज:</strong> ${cleanMandi} मध्ये दर ₹${advisory.current_gross_price_per_qtl || 0} वरून ₹${advisory.forecast_listing_price} पर्यंत वाढण्याची शक्यता आहे.</span></div>
-            <div class="advisory-reason-item"><span>📦</span> <span><strong>कमी साठवणूक खर्च:</strong> ७ दिवसांचा गोदाम व वजन घट खर्च केवळ ₹${totalHolding}/क्विंटल आहे.</span></div>
-            <div class="advisory-reason-item"><span>💰</span> <span><strong>निव्वळ नफा:</strong> माल थांबवून विकल्यास प्रति क्विंटल <strong>₹${advisory.projected_gain_per_qtl} जास्त निव्वळ नफा (एकूण ₹${advisory.projected_gain_total})</strong> मिळेल.</span></div>
+            <div class="advisory-reason-item"><span class="reason-icon">📊</span> <span class="reason-text"><strong>बाजारभाव वाढीचा अंदाज:</strong> ${cleanMandi} मध्ये दर ₹${advisory.current_gross_price_per_qtl || 0} वरून ₹${advisory.forecast_listing_price} पर्यंत वाढण्याची शक्यता आहे.</span></div>
+            <div class="advisory-reason-item"><span class="reason-icon">📦</span> <span class="reason-text"><strong>कमी साठवणूक खर्च:</strong> ७ दिवसांचा गोदाम व वजन घट खर्च केवळ ₹${totalHolding}/क्विंटल आहे.</span></div>
+            <div class="advisory-reason-item"><span class="reason-icon">💰</span> <span class="reason-text"><strong>निव्वळ नफा:</strong> माल थांबवून विकल्यास प्रति क्विंटल <strong>₹${advisory.projected_gain_per_qtl} जास्त निव्वळ नफा (एकूण ₹${advisory.projected_gain_total})</strong> मिळेल.</span></div>
           `;
         } else {
           const lossAvoided = advisory.loss_avoided_per_qtl || Math.abs(advisory.projected_gain_per_qtl);
           const lossTotal = advisory.loss_avoided_total || Math.abs(advisory.projected_gain_total);
           reasonsList.innerHTML = `
-            <div class="advisory-reason-item"><span>📊</span> <span><strong>बाजारभाव कल:</strong> ${cleanMandi} मध्ये पुढे भाव स्थिर किंवा कमी राहण्याचा अंदाज असल्याने साठवणूक फायदेशीर नाही.</span></div>
-            <div class="advisory-reason-item"><span>📦</span> <span><strong>अनावश्यक खर्च टळेल:</strong> माल रोखल्यास प्रति क्विंटल ₹${totalHolding} चा साठवणूक व घसारा खर्च होईल.</span></div>
-            <div class="advisory-reason-item"><span>💰</span> <span><strong>नुकसानीपासून बचाव:</strong> आजच विक्री केल्याने <strong>₹${lossAvoided}/क्विंटलचे (एकूण ₹${lossTotal})</strong> नुकसान टळेल.</span></div>
+            <div class="advisory-reason-item"><span class="reason-icon">📊</span> <span class="reason-text"><strong>बाजारभाव कल:</strong> ${cleanMandi} मध्ये पुढे भाव स्थिर किंवा कमी राहण्याचा अंदाज असल्याने साठवणूक फायदेशीर नाही.</span></div>
+            <div class="advisory-reason-item"><span class="reason-icon">📦</span> <span class="reason-text"><strong>अनावश्यक खर्च टळेल:</strong> माल रोखल्यास प्रति क्विंटल ₹${totalHolding} चा साठवणूक व घसारा खर्च होईल.</span></div>
+            <div class="advisory-reason-item"><span class="reason-icon">💰</span> <span class="reason-text"><strong>नुकसानीपासून बचाव:</strong> आजच विक्री केल्याने <strong>₹${lossAvoided}/क्विंटलचे (एकूण ₹${lossTotal})</strong> नुकसान टळेल.</span></div>
           `;
         }
       } else {
         // English
         if (decision === "HOLD") {
           reasonsList.innerHTML = `
-            <div class="advisory-reason-item"><span>📊</span> <span><strong>Price Trajectory:</strong> Prices in ${cleanMandi} are forecasted to increase from ₹${advisory.current_gross_price_per_qtl || 0} to ₹${advisory.forecast_listing_price}/qtl (${diffSign}).</span></div>
-            <div class="advisory-reason-item"><span>📦</span> <span><strong>Holding Buffer:</strong> Total 7-day storage & moisture shrinkage cost is only ₹${totalHolding}/qtl.</span></div>
-            <div class="advisory-reason-item"><span>💰</span> <span><strong>Profit Gain:</strong> Waiting delivers an extra net profit of <strong>+₹${advisory.projected_gain_per_qtl}/qtl (+₹${advisory.projected_gain_total} total)</strong>.</span></div>
+            <div class="advisory-reason-item"><span class="reason-icon">📊</span> <span class="reason-text"><strong>Price Trajectory:</strong> Prices in ${cleanMandi} are forecasted to increase from ₹${advisory.current_gross_price_per_qtl || 0} to ₹${advisory.forecast_listing_price}/qtl (${diffSign}).</span></div>
+            <div class="advisory-reason-item"><span class="reason-icon">📦</span> <span class="reason-text"><strong>Holding Buffer:</strong> Total 7-day storage & moisture shrinkage cost is only ₹${totalHolding}/qtl.</span></div>
+            <div class="advisory-reason-item"><span class="reason-icon">💰</span> <span class="reason-text"><strong>Profit Gain:</strong> Waiting delivers an extra net profit of <strong>+₹${advisory.projected_gain_per_qtl}/qtl (+₹${advisory.projected_gain_total} total)</strong>.</span></div>
           `;
         } else {
           const lossAvoided = advisory.loss_avoided_per_qtl || Math.abs(advisory.projected_gain_per_qtl);
           const lossTotal = advisory.loss_avoided_total || Math.abs(advisory.projected_gain_total);
           reasonsList.innerHTML = `
-            <div class="advisory-reason-item"><span>📊</span> <span><strong>Price Trajectory:</strong> Future prices in ${cleanMandi} are predicted to drop or remain flat (${diffSign}), failing to outpace holding costs.</span></div>
-            <div class="advisory-reason-item"><span>📦</span> <span><strong>Unnecessary Cost:</strong> Holding incurs ₹${totalHolding}/qtl in storage fees and natural quality degradation.</span></div>
-            <div class="advisory-reason-item"><span>💰</span> <span><strong>Protected Profit:</strong> Selling today secures your top rate and saves you an estimated <strong>₹${lossAvoided}/qtl (₹${lossTotal} total)</strong> in avoided loss.</span></div>
+            <div class="advisory-reason-item"><span class="reason-icon">📊</span> <span class="reason-text"><strong>Price Trajectory:</strong> Future prices in ${cleanMandi} are predicted to drop or remain flat (${diffSign}), failing to outpace holding costs.</span></div>
+            <div class="advisory-reason-item"><span class="reason-icon">📦</span> <span class="reason-text"><strong>Unnecessary Cost:</strong> Holding incurs ₹${totalHolding}/qtl in storage fees and natural quality degradation.</span></div>
+            <div class="advisory-reason-item"><span class="reason-icon">💰</span> <span class="reason-text"><strong>Protected Profit:</strong> Selling today secures your top rate and saves you an estimated <strong>₹${lossAvoided}/qtl (₹${lossTotal} total)</strong> in avoided loss.</span></div>
           `;
         }
       }
@@ -400,6 +403,9 @@ async function fetchComparisonData(isSilent = false) {
       
       currentAdvisoryData = advResult;
       renderAdvisoryUI(currentAdvisoryData);
+
+      // Update refreshed timestamp indicator
+      updateRefreshedTimeDisplay();
 
       // Also fetch trend analytics
       fetchAnalytics(cropId);
@@ -634,6 +640,15 @@ function speakWithBrowserTTS(text, lang, onEndCallback) {
   window.speechSynthesis.speak(utterance);
 }
 
+// Refreshed Timestamp UI Helper
+function updateRefreshedTimeDisplay() {
+  const tsElem = document.getElementById("refreshedTimestampText");
+  if (tsElem) {
+    const timeStr = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    tsElem.textContent = `${timeStr} (Today)`;
+  }
+}
+
 // Refresh Live Rates Handler
 async function handleRefreshRates() {
   const btn = document.getElementById("refreshPricesBtn");
@@ -651,6 +666,7 @@ async function handleRefreshRates() {
   try {
     await fetch(`/api/refresh-prices?crop_id=${cropId}`, { method: "POST" });
     await fetchComparisonData(true);
+    updateRefreshedTimeDisplay();
 
     const timeStr = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
     const successMsg = `${dict.ratesRefreshed} (${timeStr})`;

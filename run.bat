@@ -39,7 +39,7 @@ echo ===========================================================================
 echo  🌾 Farmer Estimator:    http://127.0.0.1:5000/
 echo  📊 Mandi Compare:       http://127.0.0.1:5000/dashboard
 echo  🛒 Buyer Marketplace:   http://127.0.0.1:5000/buyer
-echo  ⚙️ Admin Console:       http://127.0.0.1:5000/admin
+echo  ⚙️ System Settings:     http://127.0.0.1:5000/settings
 echo ==============================================================================
 echo Press Ctrl+C in this window to stop the server anytime.
 echo.

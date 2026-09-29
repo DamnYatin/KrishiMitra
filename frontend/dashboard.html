@@ -37,6 +37,11 @@
           <button class="lang-btn" data-lang="hi">हिन्दी</button>
           <button class="lang-btn" data-lang="mr">मराठी</button>
         </div>
+
+        <!-- Settings Icon Link -->
+        <a href="/settings" class="nav-settings-btn" title="Settings" aria-label="Settings">
+          ⚙️
+        </a>
       </div>
     </div>
   </header>
@@ -69,40 +74,7 @@
         </div>
       </section>
 
-      <!-- 2. Phase 4: AI Sell vs. Hold Proactive Advisory Badge & Insight -->
-      <section class="advisory-card is-hold" id="advisorySection" aria-label="AI Sell vs Hold Recommendation" style="display: none;">
-        <div class="advisory-header">
-          <span class="advisory-badge" id="advisoryBadge">
-            <span id="advisoryBadgeIcon">💡</span>
-            <span id="advisoryBadgeText">AI Advisory</span>
-          </span>
-          <span class="advisory-label" id="advisoryLabel" data-i18n="advisoryCardTitle">AI Market Advisory (7-Day Forecast)</span>
-        </div>
-        
-        <!-- Primary Headline Reason -->
-        <p class="advisory-text" id="advisoryMessageText">Loading forecast advisory...</p>
-
-        <!-- Detailed Financial & Market Reason Chips -->
-        <div class="advisory-metrics-grid" id="advisoryMetricsGrid" style="display: none;">
-          <div class="advisory-metric-chip">
-            <span class="metric-label" id="advisoryForecastLabel" data-i18n="advisoryForecastLabel">7-Day Price Forecast</span>
-            <strong class="metric-value" id="advisoryForecastPrice">--</strong>
-          </div>
-          <div class="advisory-metric-chip">
-            <span class="metric-label" id="advisoryHoldingLabel" data-i18n="advisoryHoldingLabel">Storage & Spoilage</span>
-            <strong class="metric-value" id="advisoryHoldingCost">--</strong>
-          </div>
-          <div class="advisory-metric-chip highlight">
-            <span class="metric-label" id="advisoryOutcomeLabel" data-i18n="advisoryOutcomeLabel">Net Outcome</span>
-            <strong class="metric-value" id="advisoryOutcomeValue">--</strong>
-          </div>
-        </div>
-
-        <!-- Detailed Bullet Reasons -->
-        <div class="advisory-reasons-list" id="advisoryReasonsList" style="display: none;"></div>
-      </section>
-
-      <!-- 3. Screen 2 Champion Winner Recommendation Card -->
+      <!-- 2. Screen 2 Champion Winner Recommendation Card -->
       <section class="winner-card" aria-label="Winner Recommendation Card">
         <span class="winner-badge" data-i18n="bestChoiceBadge">🏆 Recommended Market (Highest Net Return)</span>
         
@@ -159,11 +131,54 @@
         </div>
       </section>
 
-      <!-- 3. Ranked Mandi Comparison List -->
+      <!-- 3. Phase 4: AI Sell vs. Hold Proactive Advisory Badge & Insight (Placed below Recommended Market) -->
+      <section class="advisory-card is-hold" id="advisorySection" aria-label="AI Sell vs Hold Recommendation" style="display: none;">
+        <div class="advisory-header">
+          <div class="advisory-header-left">
+            <span class="advisory-ai-tag">✨ AI Market Advisory</span>
+            <span class="advisory-badge" id="advisoryBadge">
+              <span id="advisoryBadgeIcon">💡</span>
+              <span id="advisoryBadgeText">AI Advisory</span>
+            </span>
+          </div>
+          <span class="advisory-label" id="advisoryLabel" data-i18n="advisoryCardTitle">⏱️ 7-Day Horizon</span>
+        </div>
+        
+        <!-- Primary Headline Reason Callout Box -->
+        <div class="advisory-headline-box">
+          <p class="advisory-text" id="advisoryMessageText">Loading forecast advisory...</p>
+        </div>
+
+        <!-- Detailed Financial & Market Reason Chips -->
+        <div class="advisory-metrics-grid" id="advisoryMetricsGrid" style="display: none;">
+          <div class="advisory-metric-chip" id="chipForecast">
+            <span class="metric-label" id="advisoryForecastLabel" data-i18n="advisoryForecastLabel">7-Day Price Forecast</span>
+            <strong class="metric-value" id="advisoryForecastPrice">--</strong>
+          </div>
+          <div class="advisory-metric-chip" id="chipHolding">
+            <span class="metric-label" id="advisoryHoldingLabel" data-i18n="advisoryHoldingLabel">Storage & Spoilage</span>
+            <strong class="metric-value" id="advisoryHoldingCost">--</strong>
+          </div>
+          <div class="advisory-metric-chip highlight" id="chipOutcome">
+            <span class="metric-label" id="advisoryOutcomeLabel" data-i18n="advisoryOutcomeLabel">Net Outcome</span>
+            <strong class="metric-value" id="advisoryOutcomeValue">--</strong>
+          </div>
+        </div>
+
+        <!-- Detailed Reasons / Insights Breakdown -->
+        <div class="advisory-reasons-list" id="advisoryReasonsList" style="display: none;"></div>
+      </section>
+
+      <!-- 4. Ranked Mandi Comparison List -->
       <section class="card">
-        <div class="rank-list-title">
-          <span data-i18n="allMandisRankTitle">📊 All Nearby Mandis (Ranked by Profit)</span>
-          <button id="refreshPricesBtn" class="btn btn-outline" style="min-height:34px; padding:2px 8px; font-size:0.8rem; width:auto;" data-i18n="refreshPricesBtn">
+        <div class="rank-list-title" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+          <div>
+            <span data-i18n="allMandisRankTitle">📊 All Nearby Mandis (Ranked by Profit)</span>
+            <div class="price-refreshed-time" id="priceRefreshedTime">
+              🕒 <span data-i18n="lastUpdatedPrefix">Last updated</span>: <strong id="refreshedTimestampText">Just now</strong>
+            </div>
+          </div>
+          <button id="refreshPricesBtn" class="btn btn-outline" style="min-height:34px; padding:2px 10px; font-size:0.8rem; width:auto;" data-i18n="refreshPricesBtn">
             ⚡ Refresh Live Rates
           </button>
         </div>

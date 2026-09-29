@@ -160,6 +160,43 @@ body {
   box-shadow: var(--shadow-sm);
 }
 
+/* Navbar Settings Icon Button */
+.nav-settings-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  font-size: 1.05rem;
+  text-decoration: none;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  flex-shrink: 0;
+}
+
+.nav-settings-btn:hover {
+  background: rgba(255, 255, 255, 0.35);
+  transform: rotate(30deg) scale(1.05);
+}
+
+.nav-settings-btn.active {
+  background: #ffffff;
+  color: var(--primary-dark);
+  box-shadow: var(--shadow-sm);
+}
+
+.price-refreshed-time {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 /* ==========================================================================
    Layout Containers
    ========================================================================== */
@@ -456,29 +493,63 @@ body {
 
 .advisory-card {
   border-radius: var(--radius-md);
-  padding: 0.95rem 1.15rem;
-  margin-bottom: 0.85rem;
-  box-shadow: var(--shadow-md);
-  transition: all 0.3s ease;
-  min-height: 52px;
+  padding: 1.1rem 1.25rem;
+  margin-bottom: 1.15rem;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.advisory-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3.5px;
+  background: #16a34a;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
 }
 
 .advisory-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 0.45rem;
+  margin-bottom: 0.65rem;
   flex-wrap: wrap;
-  gap: 0.4rem;
+  gap: 0.5rem;
+}
+
+.advisory-header-left {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.advisory-ai-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-full);
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
 }
 
 .advisory-badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  font-size: 0.82rem;
+  gap: 0.35rem;
+  font-size: 0.8rem;
   font-weight: 800;
-  padding: 0.28rem 0.8rem;
+  padding: 0.24rem 0.75rem;
   border-radius: var(--radius-full);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -486,114 +557,152 @@ body {
 }
 
 .advisory-label {
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   font-weight: 700;
-  letter-spacing: 0.02em;
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: rgba(255, 255, 255, 0.85);
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-full);
+  border: 1px solid #e2e8f0;
+}
+
+/* Primary Headline Message Box */
+.advisory-headline-box {
+  background: rgba(255, 255, 255, 0.9);
+  border-left: 3.5px solid #16a34a;
+  border-radius: 8px;
+  padding: 0.65rem 0.85rem;
+  margin-bottom: 0.75rem;
+  border-top: 1px solid #f1f5f9;
+  border-right: 1px solid #f1f5f9;
+  border-bottom: 1px solid #f1f5f9;
 }
 
 .advisory-text {
-  font-size: 1rem; /* >= 16px farmer readability */
+  font-size: 0.95rem; /* readable farmer-friendly size */
   font-weight: 600;
-  line-height: 1.45;
+  line-height: 1.48;
   margin: 0;
+  color: #1e293b;
 }
 
-/* Visual States - Whitish Theme with High-Contrast Accents */
+/* Visual States - Hold */
 .advisory-card.is-hold {
-  background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
-  border: 2px solid #16a34a;
-  box-shadow: 0 4px 16px rgba(22, 163, 74, 0.12);
+  background: linear-gradient(145deg, #ffffff 0%, #f0fdf4 100%);
+  border: 1.5px solid #bbf7d0;
+  box-shadow: 0 4px 18px rgba(22, 163, 74, 0.07);
+}
+
+.advisory-card.is-hold::before {
+  background: linear-gradient(90deg, #16a34a, #22c55e);
+}
+
+.advisory-card.is-hold .advisory-ai-tag {
+  background: #dcfce7;
+  color: #166534;
+  border-color: #bbf7d0;
 }
 
 .advisory-card.is-hold .advisory-badge {
   background: #15803d;
   color: #ffffff;
+  box-shadow: 0 2px 6px rgba(21, 128, 61, 0.22);
 }
 
 .advisory-card.is-hold .advisory-label {
   color: #166534;
-  font-weight: 700;
+  border-color: #dcfce7;
 }
 
-.advisory-card.is-hold .advisory-text {
-  color: #0f172a;
-  font-weight: 600;
+.advisory-card.is-hold .advisory-headline-box {
+  background: rgba(255, 255, 255, 0.85);
+  border-left-color: #16a34a;
+  border-top-color: #dcfce7;
+  border-right-color: #dcfce7;
+  border-bottom-color: #dcfce7;
 }
 
+/* Visual States - Sell */
 .advisory-card.is-sell {
-  background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
-  border: 2px solid var(--primary);
-  box-shadow: 0 4px 16px rgba(21, 128, 61, 0.12);
+  background: linear-gradient(145deg, #ffffff 0%, #f0fdfa 100%);
+  border: 1.5px solid #99f6e4;
+  box-shadow: 0 4px 18px rgba(13, 148, 136, 0.07);
+}
+
+.advisory-card.is-sell::before {
+  background: linear-gradient(90deg, #0d9488, #14b8a6);
+}
+
+.advisory-card.is-sell .advisory-ai-tag {
+  background: #ccfbf1;
+  color: #0f766e;
+  border-color: #99f6e4;
 }
 
 .advisory-card.is-sell .advisory-badge {
-  background: var(--primary);
+  background: #0f766e;
   color: #ffffff;
+  box-shadow: 0 2px 6px rgba(15, 118, 110, 0.22);
 }
 
 .advisory-card.is-sell .advisory-label {
-  color: var(--primary-dark);
-  font-weight: 700;
+  color: #0f766e;
+  border-color: #ccfbf1;
 }
 
-.advisory-card.is-sell .advisory-text {
-  color: #0f172a;
-  font-weight: 600;
+.advisory-card.is-sell .advisory-headline-box {
+  background: rgba(255, 255, 255, 0.85);
+  border-left-color: #0d9488;
+  border-top-color: #ccfbf1;
+  border-right-color: #ccfbf1;
+  border-bottom-color: #ccfbf1;
 }
 
+/* Visual States - Unavailable */
 .advisory-card.is-unavailable {
   background: #f8fafc;
   border: 1.5px solid var(--border-color);
   box-shadow: none;
 }
 
+.advisory-card.is-unavailable::before {
+  background: #94a3b8;
+}
+
 .advisory-card.is-unavailable .advisory-badge {
-  background: var(--text-light);
+  background: #64748b;
   color: #ffffff;
 }
 
-.advisory-card.is-unavailable .advisory-label {
-  color: var(--text-light);
-  font-weight: 700;
+.advisory-card.is-unavailable .advisory-headline-box {
+  border-left-color: #94a3b8;
 }
 
-.advisory-card.is-unavailable .advisory-text {
-  color: var(--text-muted);
-  font-size: 0.95rem;
-  font-weight: 500;
-}
-
-/* Advisory Metrics & Reasons Breakdown */
+/* Advisory Metrics Grid */
 .advisory-metrics-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 0.5rem;
+  gap: 0.6rem;
   margin-top: 0.75rem;
 }
 
 .advisory-metric-chip {
-  padding: 0.5rem 0.75rem;
+  padding: 0.65rem 0.8rem;
   border-radius: var(--radius-sm);
   background: #ffffff;
-  border: 1.5px solid #dcfce7;
+  border: 1px solid #e2e8f0;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.advisory-card.is-hold .advisory-metric-chip {
-  background: #ffffff;
-  border: 1.5px solid #bbf7d0;
-}
-
-.advisory-card.is-sell .advisory-metric-chip {
-  background: #ffffff;
-  border: 1.5px solid #cbd5e1;
-}
-
-.advisory-card.is-unavailable .advisory-metric-chip {
-  background: #ffffff;
-  border: 1px solid var(--border-color);
+.advisory-metric-chip:hover {
+  transform: translateY(-1.5px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.06);
 }
 
 .advisory-metric-chip .metric-label {
@@ -601,68 +710,135 @@ body {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
+  color: #64748b;
+  margin-bottom: 0.25rem;
+}
+
+.advisory-metric-chip .metric-value {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.25;
+}
+
+.advisory-card.is-hold .advisory-metric-chip {
+  border-color: #dcfce7;
+}
+
+.advisory-card.is-hold .advisory-metric-chip .metric-label {
   color: #166534;
 }
 
+.advisory-card.is-hold .advisory-metric-chip.highlight {
+  background: linear-gradient(135deg, #ecfdf5 0%, #dcfce7 100%);
+  border: 1.5px solid #22c55e;
+}
+
+.advisory-card.is-hold .advisory-metric-chip.highlight .metric-label {
+  color: #15803d;
+  font-weight: 800;
+}
+
+.advisory-card.is-hold .advisory-metric-chip.highlight .metric-value {
+  color: #14532d;
+}
+
+.advisory-card.is-sell .advisory-metric-chip {
+  border-color: #ccfbf1;
+}
+
 .advisory-card.is-sell .advisory-metric-chip .metric-label {
-  color: var(--text-muted);
+  color: #0f766e;
+}
+
+.advisory-card.is-sell .advisory-metric-chip.highlight {
+  background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%);
+  border: 1.5px solid #14b8a6;
+}
+
+.advisory-card.is-sell .advisory-metric-chip.highlight .metric-label {
+  color: #0f766e;
+  font-weight: 800;
+}
+
+.advisory-card.is-sell .advisory-metric-chip.highlight .metric-value {
+  color: #134e4a;
+}
+
+.advisory-card.is-unavailable .advisory-metric-chip {
+  background: #ffffff;
+  border: 1px solid var(--border-color);
 }
 
 .advisory-card.is-unavailable .advisory-metric-chip .metric-label {
   color: var(--text-light);
 }
 
-.advisory-metric-chip .metric-value {
-  font-size: 0.95rem;
-  font-weight: 800;
-  margin-top: 0.15rem;
-  color: #0f172a;
-}
-
-.advisory-card.is-hold .advisory-metric-chip.highlight {
-  background: #ecfdf5;
-  border: 1.5px solid #16a34a;
-  color: #14532d;
-}
-
-.advisory-card.is-sell .advisory-metric-chip.highlight {
-  background: #ecfdf5;
-  border: 1.5px solid var(--primary);
-  color: var(--primary-dark);
-}
-
+/* Advisory Reasons / Drivers Breakdown */
 .advisory-reasons-list {
   margin-top: 0.75rem;
-  padding-top: 0.55rem;
-  border-top: 1px dashed #cbd5e1;
-  font-size: 0.88rem;
-  line-height: 1.45;
-  color: #334155;
+  padding-top: 0.65rem;
+  border-top: 1px dashed #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
 }
 
 .advisory-card.is-hold .advisory-reasons-list {
-  border-top-color: #bbf7d0;
-  color: #1e293b;
+  border-top-color: #dcfce7;
 }
 
 .advisory-card.is-sell .advisory-reasons-list {
-  border-top-color: #cbd5e1;
-  color: var(--text-main);
+  border-top-color: #ccfbf1;
 }
 
 .advisory-reason-item {
   display: flex;
-  align-items: flex-start;
-  gap: 0.4rem;
-  margin-bottom: 0.35rem;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.86rem;
+  line-height: 1.4;
+  color: #334155;
+  background: rgba(255, 255, 255, 0.75);
+  padding: 0.45rem 0.65rem;
+  border-radius: 8px;
+  border: 1px solid rgba(226, 232, 240, 0.6);
+}
+
+.advisory-card.is-hold .advisory-reason-item {
+  border-color: rgba(220, 252, 231, 0.9);
+}
+
+.advisory-reason-item .reason-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: #f1f5f9;
+  flex-shrink: 0;
+  font-size: 0.85rem;
+}
+
+.advisory-card.is-hold .advisory-reason-item .reason-icon {
+  background: #dcfce7;
+}
+
+.advisory-card.is-sell .advisory-reason-item .reason-icon {
+  background: #ccfbf1;
+}
+
+.advisory-reason-item .reason-text {
+  flex: 1;
 }
 
 .advisory-card.is-hold .advisory-reason-item strong {
-  color: #0f391b;
+  color: #14532d;
 }
 
 .advisory-card.is-sell .advisory-reason-item strong {
-  color: var(--primary-dark);
+  color: #0f766e;
 }
 
 /* Winner Banner Card */
@@ -882,69 +1058,210 @@ body {
 }
 
 /* ==========================================================================
-   Admin Panel Styles (Screen 3)
+   Admin / Settings Panel Styles
    ========================================================================== */
+
+.admin-header-pill {
+  background: rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: var(--radius-full);
+  padding: 4px 12px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  text-decoration: none;
+}
+
+.admin-header-link {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: var(--radius-full);
+  padding: 4px 12px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.admin-header-link:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.admin-farmer-link {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: var(--radius-full);
+  padding: 4px 14px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.admin-farmer-link:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
 
 .admin-nav-tabs {
   display: flex;
-  gap: 0.4rem;
+  gap: 0.5rem;
   overflow-x: auto;
-  padding-bottom: 0.4rem;
-  margin-bottom: 1rem;
+  padding: 0.25rem 0.25rem 1.25rem 0.25rem;
+  margin-bottom: 0.5rem;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
+  justify-content: center;
 }
 .admin-nav-tabs::-webkit-scrollbar {
   display: none;
 }
 
+@media (max-width: 768px) {
+  .admin-nav-tabs {
+    justify-content: flex-start;
+  }
+}
+
 .admin-tab-btn {
   background: #ffffff;
-  border: 1.5px solid var(--border-color);
-  padding: 0.45rem 0.85rem;
-  border-radius: var(--radius-sm);
+  border: 1.5px solid #cbd5e1;
+  padding: 0.45rem 1.05rem;
+  border-radius: 8px;
   font-size: 0.88rem;
-  font-weight: 600;
+  font-weight: 700;
+  color: #1e293b;
   cursor: pointer;
   white-space: nowrap;
   flex-shrink: 0;
   min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: all 0.18s ease;
+}
+
+.admin-tab-btn:hover {
+  border-color: #94a3b8;
+  background: #f8fafc;
 }
 
 .admin-tab-btn.active {
-  background: var(--primary);
-  color: #ffffff;
-  border-color: var(--primary);
+  background: #166534 !important;
+  color: #ffffff !important;
+  border-color: #166534 !important;
+  box-shadow: 0 2px 8px rgba(22, 101, 52, 0.28) !important;
+}
+
+.rec-crop-pill {
+  background: #eff6ff;
+  border: 1.5px solid #93c5fd;
+  color: #1d4ed8;
+  font-weight: 700;
+  font-size: 0.8rem;
+  border-radius: var(--radius-full);
+  padding: 4px 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.rec-crop-pill:hover {
+  background: #dbeafe;
+  border-color: #60a5fa;
+  transform: translateY(-1px);
+}
+
+.rec-mandi-pill {
+  background: #f0fdf4;
+  border: 1.5px solid #86efac;
+  color: #15803d;
+  font-weight: 700;
+  font-size: 0.8rem;
+  border-radius: var(--radius-full);
+  padding: 4px 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.rec-mandi-pill:hover {
+  background: #dcfce7;
+  border-color: #4ade80;
+  transform: translateY(-1px);
 }
 
 .table-responsive {
   width: 100%;
   overflow-x: auto;
   border-radius: var(--radius-md);
-  border: 1px solid var(--border-color);
+  border: 1px solid #e2e8f0;
   background: #ffffff;
   -webkit-overflow-scrolling: touch;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 }
 
 .admin-table {
   width: 100%;
   border-collapse: collapse;
   text-align: left;
-  font-size: 0.88rem;
-  min-width: 320px;
+  font-size: 0.9rem;
+  min-width: 340px;
 }
 
 .admin-table th {
-  background: #f1f5f9;
-  padding: 0.65rem 0.85rem;
-  font-weight: 700;
-  border-bottom: 1.5px solid var(--border-color);
+  background: #f8fafc;
+  padding: 0.75rem 1rem;
+  font-weight: 800;
+  color: #0f172a;
+  border-bottom: 1.5px solid #e2e8f0;
   white-space: nowrap;
 }
 
 .admin-table td {
-  padding: 0.65rem 0.85rem;
-  border-bottom: 1px solid #e2e8f0;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+  color: #1e293b;
+}
+
+.admin-table tr:last-child td {
+  border-bottom: none;
+}
+
+.admin-delete-btn {
+  background: #ffffff;
+  color: #dc2626;
+  border: 1px solid #fca5a5;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 3px 14px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-delete-btn:hover {
+  background: #fef2f2;
+  border-color: #ef4444;
 }
 
 /* Toast Notifications */
