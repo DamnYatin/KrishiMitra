@@ -165,15 +165,3 @@ When selecting **Cotton (कपास)** and **Home Mandi: Nagpur (10 Quintals)*
 2. **Google Maps Platform (JavaScript & Distance Matrix API):**
    - Backend routing queries Distance Matrix API with Haversine fallback.
    - Frontend renders an interactive Google Map with custom markers (🏠 Home, 🏆 Recommended, 📍 Candidates).
-
----
-
-## 🌐 Deployment Options
-
-### Option 1: Render.com
-Pre-configured with `render.yaml` and `Procfile`:
-- **Build Command:** `pip install -r requirements.txt`
-- **Start Command:** `gunicorn --chdir backend app:app`
-
-### Option 2: Vercel Serverless
-Pre-configured with `vercel.json` and `api/index.py`.
