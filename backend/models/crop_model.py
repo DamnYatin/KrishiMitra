@@ -13,29 +13,180 @@ import re
 from database.db_connection import query_db, execute_db
 
 RECOMMENDED_CROPS_CATALOG = [
-    {"name": "Maize / Corn (मक्का / मका)", "category": "Cereals", "default_price": 2250.0},
-    {"name": "Groundnut / Peanut (मूंगफली / भुईमूग)", "category": "Oilseeds", "default_price": 6300.0},
-    {"name": "Jowar / Sorghum (ज्वार / ज्वारी)", "category": "Millets", "default_price": 3150.0},
-    {"name": "Bajra / Pearl Millet (बाजरा / बाजरी)", "category": "Millets", "default_price": 2400.0},
-    {"name": "Paddy / Rice (धान / भात / तांदूळ)", "category": "Cereals", "default_price": 2200.0},
-    {"name": "Green Gram / Moong (मूंग / मूग)", "category": "Pulses", "default_price": 8500.0},
-    {"name": "Black Gram / Urad (उड़द / उडीद)", "category": "Pulses", "default_price": 7400.0},
-    {"name": "Sunflower (सूरजमुखी / सूर्यफूल)", "category": "Oilseeds", "default_price": 6700.0},
-    {"name": "Sesame / Til (तिल / तीळ)", "category": "Oilseeds", "default_price": 14500.0},
-    {"name": "Mustard (सरसों / मोहरी)", "category": "Oilseeds", "default_price": 5650.0},
-    {"name": "Sugarcane (गन्ना / ऊस)", "category": "Cash Crops", "default_price": 315.0},
-    {"name": "Turmeric (हल्दी / हळद)", "category": "Spices", "default_price": 13800.0},
-    {"name": "Ginger (अदरक / आले)", "category": "Spices", "default_price": 7200.0},
-    {"name": "Chilli / Mirchi (लाल मिर्च / मिरची)", "category": "Spices", "default_price": 18500.0},
-    {"name": "Garlic (लहसुन / लसूण)", "category": "Spices", "default_price": 12000.0},
-    {"name": "Potato (आलू / बटाटा)", "category": "Vegetables", "default_price": 1600.0},
-    {"name": "Tomato (टमाटर / टोमॅटो)", "category": "Vegetables", "default_price": 1800.0},
-    {"name": "Pomegranate (अनार / डाळिंब)", "category": "Fruits", "default_price": 9500.0},
-    {"name": "Orange / Santra (संतरा / संत्री)", "category": "Fruits", "default_price": 4500.0},
-    {"name": "Banana (केला / केळी)", "category": "Fruits", "default_price": 2100.0},
-    {"name": "Grapes (अंगूर / द्राक्षे)", "category": "Fruits", "default_price": 6800.0},
-    {"name": "Coriander / Dhaniya (धनिया / कोथिंबीर)", "category": "Spices", "default_price": 7500.0},
-    {"name": "Cumin / Jeera (जीरा / जिरे)", "category": "Spices", "default_price": 28000.0}
+    {
+        "name": "Maize / Corn (मक्का / मका)",
+        "category": "Cereals",
+        "default_price": 2250.0,
+        "aliases": ["maize", "maze", "makka", "maka", "corn", "bhutta", "makai", "makkai"]
+    },
+    {
+        "name": "Cotton (कपास / कापूस)",
+        "category": "Cash Crops",
+        "default_price": 7200.0,
+        "aliases": ["cotton", "kapas", "kapaas", "kapus", "rooi", "rui"]
+    },
+    {
+        "name": "Soybean (सोयाबीन)",
+        "category": "Oilseeds",
+        "default_price": 4600.0,
+        "aliases": ["soybean", "soyabean", "soya", "soya bean"]
+    },
+    {
+        "name": "Wheat (गेहूं / गहू)",
+        "category": "Cereals",
+        "default_price": 2450.0,
+        "aliases": ["wheat", "gehu", "gehun", "gahu", "gehoon", "kanak"]
+    },
+    {
+        "name": "Tur / Arhar (तूर / अरहर)",
+        "category": "Pulses",
+        "default_price": 10200.0,
+        "aliases": ["tur", "arhar", "toor", "red gram", "pigeon pea", "tuver", "arhar dal"]
+    },
+    {
+        "name": "Gram / Chana (चना / हरभरा)",
+        "category": "Pulses",
+        "default_price": 5900.0,
+        "aliases": ["chana", "gram", "channa", "chickpea", "harbhara", "harbara", "bengal gram"]
+    },
+    {
+        "name": "Onion (प्याज / कांदा)",
+        "category": "Vegetables",
+        "default_price": 1800.0,
+        "aliases": ["onion", "pyaz", "pyaaz", "kanda", "kaanda", "dungri", "pyaj"]
+    },
+    {
+        "name": "Groundnut / Peanut (मूंगफली / भुईमूग)",
+        "category": "Oilseeds",
+        "default_price": 6300.0,
+        "aliases": ["groundnut", "peanut", "mungfali", "moongfali", "bhuimug", "bhuyimug", "singdana", "shengdana"]
+    },
+    {
+        "name": "Jowar / Sorghum (ज्वार / ज्वारी)",
+        "category": "Millets",
+        "default_price": 3150.0,
+        "aliases": ["jowar", "sorghum", "jwari", "jowari", "jondhala", "juar"]
+    },
+    {
+        "name": "Bajra / Pearl Millet (बाजरा / बाजरी)",
+        "category": "Millets",
+        "default_price": 2400.0,
+        "aliases": ["bajra", "pearl millet", "bajri", "sajje"]
+    },
+    {
+        "name": "Paddy / Rice (धान / भात / तांदूळ)",
+        "category": "Cereals",
+        "default_price": 2200.0,
+        "aliases": ["paddy", "rice", "dhan", "chawal", "bhaat", "bhat", "tandool", "tandul"]
+    },
+    {
+        "name": "Green Gram / Moong (मूंग / मूग)",
+        "category": "Pulses",
+        "default_price": 8500.0,
+        "aliases": ["moong", "green gram", "mung", "mug", "moog", "moong dal", "mung dal"]
+    },
+    {
+        "name": "Black Gram / Urad (उड़द / उडीद)",
+        "category": "Pulses",
+        "default_price": 7400.0,
+        "aliases": ["urad", "black gram", "udid", "udad", "urad dal", "mash"]
+    },
+    {
+        "name": "Sunflower (सूरजमुखी / सूर्यफूल)",
+        "category": "Oilseeds",
+        "default_price": 6700.0,
+        "aliases": ["sunflower", "surajmukhi", "suryaphul", "suryaphool", "suraj mukhi"]
+    },
+    {
+        "name": "Sesame / Til (तिल / तीळ)",
+        "category": "Oilseeds",
+        "default_price": 14500.0,
+        "aliases": ["til", "sesame", "teel", "gingelly", "tila"]
+    },
+    {
+        "name": "Mustard (सरसों / मोहरी)",
+        "category": "Oilseeds",
+        "default_price": 5650.0,
+        "aliases": ["mustard", "sarson", "sarso", "mohari", "rai", "sarson ka tel"]
+    },
+    {
+        "name": "Sugarcane (गन्ना / ऊस)",
+        "category": "Cash Crops",
+        "default_price": 315.0,
+        "aliases": ["sugarcane", "ganna", "us", "oos", "ikhu"]
+    },
+    {
+        "name": "Turmeric (हल्दी / हळद)",
+        "category": "Spices",
+        "default_price": 13800.0,
+        "aliases": ["turmeric", "haldi", "halad", "hardar"]
+    },
+    {
+        "name": "Ginger (अदरक / आले)",
+        "category": "Spices",
+        "default_price": 7200.0,
+        "aliases": ["ginger", "adrak", "ale", "aadrak", "aale"]
+    },
+    {
+        "name": "Chilli / Mirchi (लाल मिर्च / मिरची)",
+        "category": "Spices",
+        "default_price": 18500.0,
+        "aliases": ["chilli", "chili", "mirchi", "mirch", "lal mirch", "tamda", "laal mirch"]
+    },
+    {
+        "name": "Garlic (लहसुन / लसूण)",
+        "category": "Spices",
+        "default_price": 12000.0,
+        "aliases": ["garlic", "lasun", "lahsun", "lehsun", "lahsoon"]
+    },
+    {
+        "name": "Potato (आलू / बटाटा)",
+        "category": "Vegetables",
+        "default_price": 1600.0,
+        "aliases": ["potato", "aloo", "alu", "batata", "aalu"]
+    },
+    {
+        "name": "Tomato (टमाटर / टोमॅटो)",
+        "category": "Vegetables",
+        "default_price": 1800.0,
+        "aliases": ["tomato", "tamatar", "tamater", "tometo"]
+    },
+    {
+        "name": "Pomegranate (अनार / डाळिंब)",
+        "category": "Fruits",
+        "default_price": 9500.0,
+        "aliases": ["pomegranate", "anar", "dalimb", "anaar", "dalimba"]
+    },
+    {
+        "name": "Orange / Santra (संतरा / संत्री)",
+        "category": "Fruits",
+        "default_price": 4500.0,
+        "aliases": ["orange", "santra", "santri", "nagpur santra", "mosambi", "narangi"]
+    },
+    {
+        "name": "Banana (केला / केळी)",
+        "category": "Fruits",
+        "default_price": 2100.0,
+        "aliases": ["banana", "kela", "keli", "kele"]
+    },
+    {
+        "name": "Grapes (अंगूर / द्राक्षे)",
+        "category": "Fruits",
+        "default_price": 6800.0,
+        "aliases": ["grapes", "angur", "angoor", "draksh", "draksha"]
+    },
+    {
+        "name": "Coriander / Dhaniya (धनिया / कोथिंबीर)",
+        "category": "Spices",
+        "default_price": 7500.0,
+        "aliases": ["coriander", "dhaniya", "dhania", "kothimbir", "kothmir"]
+    },
+    {
+        "name": "Cumin / Jeera (जीरा / जिरे)",
+        "category": "Spices",
+        "default_price": 28000.0,
+        "aliases": ["cumin", "jeera", "zira", "jire", "jira"]
+    }
 ]
 
 class CropModel:
@@ -75,6 +226,7 @@ class CropModel:
     def get_recommendations(query=""):
         """
         Returns intelligent crop suggestions matching the query.
+        Supports English names, Hindi/Marathi names, and phonetic/transliterated words (e.g. 'makka', 'kapas', 'gehu').
         Filters out already added crops to prevent duplication.
         """
         existing_crops = CropModel.get_all()
@@ -92,9 +244,23 @@ class CropModel:
             if item_clean in existing_names or item["name"].lower() in existing_names:
                 continue
 
-            if not q or q in item["name"].lower() or q in item["category"].lower() or q in item_clean:
+            if not q:
                 matches.append(item)
-                if len(matches) >= 12:
-                    break
+            else:
+                # Direct match in display name or category
+                matched = q in item["name"].lower() or q in item["category"].lower() or q in item_clean
+                
+                # Check transliterated/phonetic aliases (e.g. 'makka', 'maze', 'kapas', 'gehu')
+                if not matched and "aliases" in item:
+                    for alias in item["aliases"]:
+                        if q in alias or alias in q or alias.startswith(q):
+                            matched = True
+                            break
+                
+                if matched:
+                    matches.append(item)
+
+            if len(matches) >= 12:
+                break
 
         return matches

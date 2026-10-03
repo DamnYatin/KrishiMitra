@@ -53,6 +53,32 @@ def rank_and_recommend_mandis(crop_id, home_mandi_id, quantity_quintal=1.0):
         mandi_id = item["mandi_id"]
         distance_km = item["distance_km"]
         gross_price = item["mandi_price_per_qtl"]
+        data_available = item.get("data_available", True)
+
+        if not data_available or gross_price is None or gross_price <= 0:
+            # Data is unavailable for this district/mandi
+            evaluated_mandis.append({
+                "mandi_id": mandi_id,
+                "mandi_name": item["mandi_name"],
+                "latitude": item.get("latitude"),
+                "longitude": item.get("longitude"),
+                "distance_km": distance_km,
+                "distance_source": item["distance_source"],
+                "data_available": False,
+                "mandi_price_per_qtl": None,
+                "transport_cost_per_qtl": None,
+                "other_costs_per_qtl": None,
+                "loading_per_qtl": None,
+                "unloading_per_qtl": None,
+                "market_charge_per_qtl": None,
+                "total_cost_per_qtl": None,
+                "net_price_per_qtl": None,
+                "gross_mandi_revenue": None,
+                "total_expenses": None,
+                "total_net_return": None,
+                "is_home_mandi": (mandi_id == home_mandi_id)
+            })
+            continue
 
         # 1. Transport Cost
         transport_calc = calculate_transport_cost(distance_km, transport_rate, qty)
@@ -75,6 +101,7 @@ def rank_and_recommend_mandis(crop_id, home_mandi_id, quantity_quintal=1.0):
             "longitude": item.get("longitude"),
             "distance_km": distance_km,
             "distance_source": item["distance_source"],
+            "data_available": True,
             "mandi_price_per_qtl": gross_price,
             "transport_cost_per_qtl": transport_calc["per_quintal"],
             "other_costs_per_qtl": other_costs_calc["per_quintal"],
@@ -89,21 +116,30 @@ def rank_and_recommend_mandis(crop_id, home_mandi_id, quantity_quintal=1.0):
             "is_home_mandi": (mandi_id == home_mandi_id)
         })
 
-    # Sort descending by net price per quintal
-    evaluated_mandis.sort(key=lambda x: x["net_price_per_qtl"], reverse=True)
+    # Separate verified available mandis from unavailable ones
+    available_mandis = [m for m in evaluated_mandis if m["data_available"]]
+    unavailable_mandis = [m for m in evaluated_mandis if not m["data_available"]]
+
+    # Sort available descending by net price per quintal
+    available_mandis.sort(key=lambda x: x["net_price_per_qtl"], reverse=True)
 
     # Assign ranks and badges
-    for index, mandi in enumerate(evaluated_mandis):
+    for index, mandi in enumerate(available_mandis):
         mandi["rank"] = index + 1
         mandi["is_recommended"] = (index == 0)
 
-    recommended = evaluated_mandis[0] if evaluated_mandis else None
+    for mandi in unavailable_mandis:
+        mandi["rank"] = None
+        mandi["is_recommended"] = False
 
-    # Calculate net profit gain compared to selling at home mandi
-    home_mandi_entry = next((m for m in evaluated_mandis if m["is_home_mandi"]), None)
+    evaluated_mandis = available_mandis + unavailable_mandis
+    recommended = available_mandis[0] if available_mandis else None
+
+    # Calculate net profit gain compared to selling at home mandi (if home mandi data is available)
+    home_mandi_entry = next((m for m in available_mandis if m["is_home_mandi"]), None)
     profit_gain_per_qtl = 0.0
     total_profit_gain = 0.0
-    if recommended and home_mandi_entry:
+    if recommended and home_mandi_entry and home_mandi_entry.get("net_price_per_qtl") is not None:
         profit_gain_per_qtl = round(recommended["net_price_per_qtl"] - home_mandi_entry["net_price_per_qtl"], 2)
         total_profit_gain = round(recommended["total_net_return"] - home_mandi_entry["total_net_return"], 2)
 

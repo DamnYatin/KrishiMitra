@@ -290,13 +290,24 @@ def auto_link_mandi_distances(new_mandi_id):
     # Initialize default other costs (loading=0, unloading=0, cess=0)
     CostModel.upsert_other_costs(new_mandi_id, 0.0, 0.0, 0.0)
 
-    # Initialize starter price for all crops
+    # Initialize starter price for all crops based on actual crop average or catalog benchmark
     crops = CropModel.get_all()
+    from services.data_fetcher_service import DataFetcherService
+    from database.db_connection import query_db
     for crop in crops:
         existing = PriceModel.get_price(crop["id"], new_mandi_id)
         if not existing:
-            # Starter baseline price
-            PriceModel.upsert_price(crop["id"], new_mandi_id, 7000.0)
+            # Query existing average market price for this specific crop
+            avg_row = query_db(
+                "SELECT AVG(price_per_quintal) as avg_p FROM prices WHERE crop_id = ? AND price_per_quintal > 0",
+                (crop["id"],),
+                one=True
+            )
+            if avg_row and avg_row["avg_p"]:
+                base_price = round(float(avg_row["avg_p"]), 2)
+            else:
+                base_price = DataFetcherService._get_baseline_price(crop["name"])
+            PriceModel.upsert_price(crop["id"], new_mandi_id, base_price)
 
     return created_distances
 
@@ -356,6 +367,7 @@ RECOMMENDED_MANDIS_CATALOG = [
 def get_location_recommendations(query=""):
     """
     Returns recommended mandi suggestions matching the query.
+    Supports English names, Devanagari names, and phonetic/transliterated variations.
     Filters out already registered mandis to prevent duplicates.
     """
     existing_mandis = MandiModel.get_all()
@@ -369,10 +381,20 @@ def get_location_recommendations(query=""):
         if item_clean in existing_names:
             continue
 
-        if not q or q in item["name"].lower() or q in item["district"].lower() or q in item_clean:
+        if not q:
             matches.append(item)
-            if len(matches) >= 12:
-                break
+        else:
+            matched = (
+                q in item["name"].lower() or 
+                q in item["district"].lower() or 
+                q in item_clean or
+                (item.get("aliases") and any(q in a or a in q for a in item["aliases"]))
+            )
+            if matched:
+                matches.append(item)
+
+        if len(matches) >= 12:
+            break
 
     # If query is typed and fewer than 3 catalog matches, query live geocoder for additional suggestions
     if q and len(matches) < 4:

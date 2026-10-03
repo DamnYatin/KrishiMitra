@@ -133,36 +133,33 @@ class DataFetcherService:
                 
                 if external_price is not None:
                     new_price = round(external_price, 2)
-                elif current:
-                    # Realistic fluctuation within +/- 1.2%
-                    delta_percent = random.uniform(-0.012, 0.012)
-                    base_price = float(current["price_per_quintal"])
-                    new_price = round(base_price * (1 + delta_percent), 2)
+                elif current and current.get("price_per_quintal") is not None:
+                    # Retain verified existing baseline price
+                    new_price = round(float(current["price_per_quintal"]), 2)
                 else:
-                    # Newly added crop: determine benchmark from catalog and apply slight mandi spread
-                    base_benchmark = DataFetcherService._get_baseline_price(crop["name"])
-                    mandi_spread = random.uniform(-0.025, 0.025)
-                    new_price = round(base_benchmark * (1 + mandi_spread), 2)
+                    # Do not generate random numbers for unavailable data
+                    new_price = None
 
-                PriceModel.upsert_price(crop["id"], mandi["id"], new_price)
+                if new_price is not None and new_price > 0:
+                    PriceModel.upsert_price(crop["id"], mandi["id"], new_price)
 
-                # Append to history table
-                hist_query = """
-                INSERT INTO price_history (crop_id, mandi_id, price_per_quintal, recorded_date)
-                VALUES (?, ?, ?, ?);
-                """
-                try:
-                    execute_db(hist_query, (crop["id"], mandi["id"], new_price, today_date))
-                except Exception:
-                    pass
+                    # Append to history table
+                    hist_query = """
+                    INSERT INTO price_history (crop_id, mandi_id, price_per_quintal, recorded_date)
+                    VALUES (?, ?, ?, ?);
+                    """
+                    try:
+                        execute_db(hist_query, (crop["id"], mandi["id"], new_price, today_date))
+                    except Exception:
+                        pass
 
-                updated_records.append({
-                    "crop_id": crop["id"],
-                    "crop_name": crop["name"],
-                    "mandi_id": mandi["id"],
-                    "mandi_name": mandi["name"],
-                    "price_per_quintal": new_price
-                })
+                    updated_records.append({
+                        "crop_id": crop["id"],
+                        "crop_name": crop["name"],
+                        "mandi_id": mandi["id"],
+                        "mandi_name": mandi["name"],
+                        "price_per_quintal": new_price
+                    })
 
         return {
             "status": "success",

@@ -78,15 +78,23 @@
       <a href="/" class="brand-wrapper">
         <span class="brand-icon">🛒</span>
         <div>
-          <h1 class="brand-title">KrishiMitra Buyer Market</h1>
-          <p class="brand-subtitle">Direct Farm Procurement & Transparent Deals</p>
+          <h1 class="brand-title" data-i18n="buyerTitle">KrishiMitra Buyer Market</h1>
+          <p class="brand-subtitle" data-i18n="buyerSubtitle">Direct Farm Procurement & Transparent Deals</p>
         </div>
       </a>
 
       <div style="display: flex; gap: 0.5rem; align-items: center;">
-        <a href="/" class="btn btn-outline" style="min-height: 34px; padding: 0.25rem 0.75rem; font-size: 0.82rem; background: rgba(255,255,255,0.2); color: #ffffff; border: 1px solid rgba(255,255,255,0.4); width: auto;">
+        <a href="/" class="btn btn-outline" style="min-height: 34px; padding: 0.25rem 0.75rem; font-size: 0.82rem; background: rgba(255,255,255,0.2); color: #ffffff; border: 1px solid rgba(255,255,255,0.4); width: auto;" data-i18n="farmerView">
           🌾 Farmer View
         </a>
+
+        <!-- Multilingual Language Toggle -->
+        <div class="lang-selector" role="group" aria-label="Language Selector">
+          <button class="lang-btn active" data-lang="en">EN</button>
+          <button class="lang-btn" data-lang="hi">हिन्दी</button>
+          <button class="lang-btn" data-lang="mr">मराठी</button>
+        </div>
+
         <a href="/settings" class="nav-settings-btn" title="Settings" aria-label="Settings">
           ⚙️
         </a>
@@ -100,15 +108,15 @@
     <div class="card" style="background: linear-gradient(135deg, #065f46 0%, #047857 100%); color: #ffffff; margin-bottom: 1rem; border: none;">
       <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
         <div>
-          <h2 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 0.25rem; color: #fef08a;">
+          <h2 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 0.25rem; color: #fef08a;" data-i18n="bannerTitle">
             🤝 Direct Farmer–Buyer Linkage
           </h2>
-          <p style="font-size: 0.88rem; color: #e2e8f0; margin: 0; max-width: 650px;">
+          <p style="font-size: 0.88rem; color: #e2e8f0; margin: 0; max-width: 650px;" data-i18n="bannerDesc">
             Buy agricultural commodities directly from local farmers at fair negotiated prices with zero APMC middleman commissions. Click <strong>"I'm Interested"</strong> to register interest and connect instantly.
           </p>
         </div>
         <div style="text-align: right;">
-          <span style="font-size: 0.78rem; background: rgba(255,255,255,0.2); padding: 0.35rem 0.75rem; border-radius: var(--radius-full); font-weight: 700;">
+          <span style="font-size: 0.78rem; background: rgba(255,255,255,0.2); padding: 0.35rem 0.75rem; border-radius: var(--radius-full); font-weight: 700;" data-i18n="privacyBadge">
             🛡️ Privacy Protected Feed
           </span>
         </div>
@@ -118,28 +126,28 @@
     <!-- Filter & Search Bar -->
     <section class="filter-bar">
       <div>
-        <label style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">FILTER BY CROP</label>
+        <label style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;" data-i18n="filterCropLabel">FILTER BY CROP</label>
         <select id="buyerCropFilter" class="form-select" style="min-height: 42px; font-size: 0.9rem;">
-          <option value="">All Commodities (सर्व पिके)</option>
+          <option value="" data-i18n="allCropsOption">All Commodities (सर्व पिके)</option>
         </select>
       </div>
 
       <div>
-        <label style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">LOCATION / REGION</label>
-        <input type="text" id="buyerLocationFilter" class="form-input" placeholder="e.g. Nashik, Amravati, Nagpur" style="min-height: 42px; font-size: 0.9rem;">
+        <label style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;" data-i18n="filterLocationLabel">LOCATION / REGION</label>
+        <input type="text" id="buyerLocationFilter" class="form-input" placeholder="e.g. Nashik, Amravati, Nagpur" data-i18n-placeholder="locationPlaceholder" style="min-height: 42px; font-size: 0.9rem;">
       </div>
 
       <div>
-        <label style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">SORT BY</label>
+        <label style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;" data-i18n="sortByLabel">SORT BY</label>
         <select id="buyerSortFilter" class="form-select" style="min-height: 42px; font-size: 0.9rem;">
-          <option value="newest">🕒 Newest Listings First</option>
-          <option value="price_high">💰 Price: High to Low</option>
-          <option value="price_low">🏷️ Price: Low to High</option>
+          <option value="newest" data-i18n="sortNewest">🕒 Newest Listings First</option>
+          <option value="price_high" data-i18n="sortPriceHigh">💰 Price: High to Low</option>
+          <option value="price_low" data-i18n="sortPriceLow">🏷️ Price: Low to High</option>
         </select>
       </div>
 
       <div style="align-self: flex-end;">
-        <button id="buyerRefreshBtn" class="btn btn-outline" style="min-height: 42px; width: auto; font-size: 0.88rem;">
+        <button id="buyerRefreshBtn" class="btn btn-outline" style="min-height: 42px; width: auto; font-size: 0.88rem;" data-i18n="refreshBtn">
           ⚡ Refresh
         </button>
       </div>

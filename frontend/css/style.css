@@ -980,6 +980,36 @@ body {
   box-shadow: var(--shadow-sm);
 }
 
+.mandi-rank-card.is-unavailable {
+  background: #f8fafc;
+  border: 1.5px dashed #cbd5e1;
+  opacity: 0.9;
+}
+
+.mandi-rank-card.is-unavailable .rank-badge-number {
+  background: #e2e8f0;
+  color: #64748b;
+}
+
+.mandi-rank-card.is-unavailable .rank-net-price {
+  font-size: 0.95rem;
+  color: #64748b;
+  font-weight: 700;
+}
+
+.badge-unavailable-pill {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
 .rank-left {
   display: flex;
   align-items: flex-start;
@@ -1116,28 +1146,32 @@ body {
 .admin-nav-tabs {
   display: flex;
   gap: 0.5rem;
-  overflow-x: auto;
-  padding: 0.25rem 0.25rem 1.25rem 0.25rem;
-  margin-bottom: 0.5rem;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
+  flex-wrap: wrap;
+  padding: 0.25rem 0.25rem 1rem 0.25rem;
+  margin-bottom: 0.75rem;
   justify-content: center;
-}
-.admin-nav-tabs::-webkit-scrollbar {
-  display: none;
+  align-items: center;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 640px) {
   .admin-nav-tabs {
     justify-content: flex-start;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 0.5rem;
+  }
+  .admin-nav-tabs::-webkit-scrollbar {
+    display: none;
   }
 }
 
 .admin-tab-btn {
   background: #ffffff;
   border: 1.5px solid #cbd5e1;
-  padding: 0.45rem 1.05rem;
-  border-radius: 8px;
+  padding: 0.45rem 0.95rem;
+  border-radius: var(--radius-md);
   font-size: 0.88rem;
   font-weight: 700;
   color: #1e293b;
@@ -1155,13 +1189,49 @@ body {
 .admin-tab-btn:hover {
   border-color: #94a3b8;
   background: #f8fafc;
+  transform: translateY(-1px);
 }
 
 .admin-tab-btn.active {
   background: #166534 !important;
   color: #ffffff !important;
   border-color: #166534 !important;
-  box-shadow: 0 2px 8px rgba(22, 101, 52, 0.28) !important;
+  box-shadow: 0 4px 10px rgba(22, 101, 52, 0.28) !important;
+}
+
+/* Autocomplete Suggestion Dropdowns */
+.admin-suggestions-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: var(--radius-md);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.admin-suggestion-item {
+  padding: 0.65rem 0.9rem;
+  border-bottom: 1px solid #f1f5f9;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #ffffff;
+  color: var(--text-main);
+  transition: background 0.15s ease;
+}
+
+.admin-suggestion-item:last-child {
+  border-bottom: none;
+}
+
+.admin-suggestion-item:hover {
+  background: #f0fdf4;
 }
 
 .rec-crop-pill {

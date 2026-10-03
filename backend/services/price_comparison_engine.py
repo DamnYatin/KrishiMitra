@@ -14,33 +14,46 @@ from services.maps_distance_service import get_distance_km
 
 def get_aligned_mandi_prices(crop_id, home_mandi_id):
     """
-    Fetches all candidate mandi prices for a crop and pairs them with distance from home mandi.
+    Fetches candidate mandi prices for a crop and pairs them with distance from home mandi.
+    Explicitly flags if data for a certain mandi / district is unavailable.
 
     Parameters:
         crop_id (int): Selected crop ID
         home_mandi_id (int): Farmer's origin/home mandi ID
 
     Returns:
-        list[dict]: List of candidate mandi listings with distance and price info
+        list[dict]: List of candidate mandi listings with distance, price, and availability info
     """
-    prices = PriceModel.get_by_crop_id(crop_id)
+    all_mandis = MandiModel.get_all()
+    prices_list = PriceModel.get_by_crop_id(crop_id)
+    price_map = {p["mandi_id"]: p for p in prices_list}
+
     aligned_results = []
 
-    for item in prices:
-        mandi_id = item["mandi_id"]
+    for mandi in all_mandis:
+        mandi_id = mandi["id"]
         distance_km, distance_source = get_distance_km(home_mandi_id, mandi_id)
+        price_record = price_map.get(mandi_id)
+
+        has_price = (
+            price_record is not None and 
+            price_record.get("price_per_quintal") is not None and 
+            float(price_record["price_per_quintal"]) > 0
+        )
+        gross_price = float(price_record["price_per_quintal"]) if has_price else None
 
         aligned_results.append({
             "mandi_id": mandi_id,
-            "mandi_name": item["mandi_name"],
+            "mandi_name": mandi["name"],
             "crop_id": crop_id,
-            "crop_name": item["crop_name"],
-            "latitude": item.get("latitude"),
-            "longitude": item.get("longitude"),
-            "mandi_price_per_qtl": float(item["price_per_quintal"]),
+            "crop_name": price_record["crop_name"] if price_record else "",
+            "latitude": mandi.get("latitude"),
+            "longitude": mandi.get("longitude"),
+            "data_available": has_price,
+            "mandi_price_per_qtl": gross_price,
             "distance_km": distance_km,
             "distance_source": distance_source,
-            "last_updated": item.get("last_updated")
+            "last_updated": price_record.get("last_updated") if price_record else None
         })
 
     return aligned_results
